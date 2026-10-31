@@ -1,0 +1,113 @@
+name: sep
+
+x-db-healthcheck: &db-healthcheck
+  test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+  interval: 5s
+  timeout: 5s
+  retries: 10
+
+services:
+  # ---------- Baze ----------
+  parking-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: parking_db
+      POSTGRES_USER: ${PARKING_DB_USER}
+      POSTGRES_PASSWORD: ${PARKING_DB_PASSWORD}
+    ports: ["${PARKING_DB_PORT}:5432"]
+    volumes: [parking-db-data:/var/lib/postgresql/data]
+    healthcheck: *db-healthcheck
+
+  psp-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: psp_db
+      POSTGRES_USER: ${PSP_DB_USER}
+      POSTGRES_PASSWORD: ${PSP_DB_PASSWORD}
+    ports: ["${PSP_DB_PORT}:5432"]
+    volumes: [psp-db-data:/var/lib/postgresql/data]
+    healthcheck: *db-healthcheck
+
+  bank-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: bank_db
+      POSTGRES_USER: ${BANK_DB_USER}
+      POSTGRES_PASSWORD: ${BANK_DB_PASSWORD}
+    ports: ["${BANK_DB_PORT}:5432"]
+    volumes: [bank-db-data:/var/lib/postgresql/data]
+    healthcheck: *db-healthcheck
+
+  # ---------- Message broker (interni za PSP) ----------
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  # ---------- Backend servisi ----------
+  parking-service:
+    build: ./parking-service
+    environment:
+      DB_URL: jdbc:postgresql://parking-db:5432/parking_db
+      DB_USERNAME: ${PARKING_DB_USER}
+      DB_PASSWORD: ${PARKING_DB_PASSWORD}
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+    ports: ["8081:8081"]
+    depends_on:
+      parking-db: { condition: service_healthy }
+
+  psp-service:
+    build: ./psp-service
+    environment:
+      DB_URL: jdbc:postgresql://psp-db:5432/psp_db
+      DB_USERNAME: ${PSP_DB_USER}
+      DB_PASSWORD: ${PSP_DB_PASSWORD}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      CORS_ALLOWED_ORIGINS: http://localhost:4201
+    ports: ["8082:8082"]
+    depends_on:
+      psp-db: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  bank-service:
+    build: ./bank-service
+    environment:
+      DB_URL: jdbc:postgresql://bank-db:5432/bank_db
+      DB_USERNAME: ${BANK_DB_USER}
+      DB_PASSWORD: ${BANK_DB_PASSWORD}
+      CORS_ALLOWED_ORIGINS: http://localhost:4202
+    ports: ["8083:8083"]
+    depends_on:
+      bank-db: { condition: service_healthy }
+
+  # ---------- Frontendi ----------
+  parking-frontend:
+    build: ./parking-frontend
+    ports: ["4200:80"]
+    depends_on: [parking-service]
+
+  psp-frontend:
+    build: ./psp-frontend
+    ports: ["4201:80"]
+    depends_on: [psp-service]
+
+  bank-frontend:
+    build: ./bank-frontend
+    ports: ["4202:80"]
+    depends_on: [bank-service]
+
+volumes:
+  parking-db-data:
+  psp-db-data:
+  bank-db-data:
