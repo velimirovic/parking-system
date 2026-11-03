@@ -1,11 +1,13 @@
 server:
   port: ${SERVER_PORT:8082}
+  # IP klijenta za audit log dolazi iz X-Forwarded-For koji postavlja nginx
+  forward-headers-strategy: framework
 
 spring:
   application:
     name: psp-service
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5432}/psp_db}
+    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5434}/psp_db}
     username: ${DB_USERNAME:sep}
     password: ${DB_PASSWORD:sep}
   jpa:
@@ -33,7 +35,38 @@ management:
     health:
       probes:
         enabled: true
+  # Portal ne zavisi od RabbitMQ-a (koristi ga samo webhook outbox)
+  health:
+    rabbit:
+      enabled: false
 
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4201}
+
+  security:
+    # HMAC kljuc za JWT (min. 32 bajta). Vrednost ispod je SAMO za lokalni razvoj.
+    jwt-secret: ${JWT_SECRET:dev-only-jwt-secret-change-me-0123456789abcdef}
+    # Istek sesije portala (PCI DSS 8.2.8 - 15 min neaktivnosti)
+    access-token-minutes: 15
+    # Rok za drugi korak prijave (MFA / promena lozinke)
+    pre-auth-minutes: 5
+    # Zakljucavanje naloga (PCI DSS 8.3.4)
+    max-failed-attempts: 5
+    lock-minutes: 30
+    # AES-256-GCM kljuc (base64, 32 bajta) za tajne u bazi. Vrednost ispod je SAMO za lokalni razvoj.
+    encryption-key: ${APP_ENCRYPTION_KEY:ZGV2LW9ubHktYWVzLWtleS1jaGFuZ2UtbWUtMzJieXQ=}
+    mfa-issuer: Maluvufy Pay
+
+  bootstrap:
+    # Prvi super admin se kreira pri pokretanju ako ne postoji; lozinka se menja pri prvoj prijavi
+    super-admin-email: ${SUPER_ADMIN_EMAIL:superadmin@sep.rs}
+    super-admin-password: ${SUPER_ADMIN_PASSWORD:SuperAdmin-2026!}
+
+  demo-data:
+    # Demo klijenti i transakcije za prikaz portala (iskljuciti u produkciji)
+    enabled: ${DEMO_DATA_ENABLED:true}
+    merchant-password: ${DEMO_MERCHANT_PASSWORD:Demo-Klijent-2026!}
+    # Fiksni API kljuc i webhook tajna demo parking klijenta, da bi parking-service mogao da se konfigurise
+    parking-api-key: ${DEMO_PARKING_API_KEY:sk_test_parking_demo_0000000000000000}
+    parking-webhook-secret: ${DEMO_PARKING_WEBHOOK_SECRET:whsec_parking_demo_00000000000000000}

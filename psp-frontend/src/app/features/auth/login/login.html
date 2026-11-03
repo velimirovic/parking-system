@@ -1,0 +1,113 @@
+<div class="screen">
+  <header class="top">
+    <div class="top-inner">
+      <span class="wordmark">Maluvufy <em>Pay</em></span>
+      <span class="sub">Portal za klijente i administratore</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <h1>Prijava</h1>
+
+    @if (sessionNotice(); as notice) {
+      <div class="alert warn">{{ notice }}</div>
+    }
+
+    <div class="cards">
+      <!-- 01 - lozinka -->
+      <form class="card" [class.active]="step() === 'LOGIN'" (submit)="submitLogin($event)" novalidate>
+        <div class="ch"><span>Prijava</span><span class="mono num">01</span></div>
+        <div class="cbody">
+          <label class="field">
+            <span class="lbl">E-pošta</span>
+            <input class="in" type="email" autocomplete="username" [value]="email()"
+              [disabled]="step() !== 'LOGIN'" (input)="email.set(value($event))" />
+          </label>
+          <label class="field">
+            <span class="lbl">Lozinka</span>
+            <input class="in" type="password" autocomplete="current-password" [value]="password()"
+              [class.invalid]="!!loginError()" [disabled]="step() !== 'LOGIN'"
+              (input)="password.set(value($event))" />
+          </label>
+          @if (loginError(); as error) {
+            <div class="alert err" role="alert">{{ error }}</div>
+          }
+          @if (step() === 'LOGIN') {
+            <button type="submit" class="btn lg push" [disabled]="busy()">
+              {{ busy() ? 'Provera…' : 'Nastavi' }}
+            </button>
+          } @else {
+            <div class="done push">
+              <span class="note mono">{{ email() }}</span>
+              <button type="button" class="sb" (click)="restart()">Promeni nalog</button>
+            </div>
+          }
+        </div>
+      </form>
+
+      <!-- 02 - prva prijava -->
+      <form class="card" [class.active]="step() === 'PASSWORD_CHANGE'" (submit)="submitNewPassword($event)" novalidate>
+        <div class="ch"><span>Prva prijava — nova lozinka</span><span class="mono num">02</span></div>
+        <div class="cbody">
+          <label class="field">
+            <span class="lbl">Nova lozinka</span>
+            <input class="in" type="password" autocomplete="new-password" [value]="newPassword()"
+              [disabled]="step() !== 'PASSWORD_CHANGE'" (input)="newPassword.set(value($event))" />
+          </label>
+          <label class="field">
+            <span class="lbl">Ponovite lozinku</span>
+            <input class="in" type="password" autocomplete="new-password" [value]="confirmPassword()"
+              [disabled]="step() !== 'PASSWORD_CHANGE'" (input)="confirmPassword.set(value($event))" />
+          </label>
+          <app-password-rules [password]="newPassword()" [confirmation]="confirmPassword()" [reused]="passwordReused()" />
+          @if (passwordError(); as error) {
+            <div class="alert err" role="alert">{{ error }}</div>
+          }
+          <button type="submit" class="btn lg push"
+            [disabled]="step() !== 'PASSWORD_CHANGE' || !canSavePassword() || busy()">
+            Sačuvaj i nastavi
+          </button>
+        </div>
+      </form>
+
+      <!-- 03 - TOTP kod / uparivanje -->
+      <form class="card" [class.active]="step() === 'MFA_VERIFY' || step() === 'MFA_SETUP'"
+        (submit)="$event.preventDefault()">
+        <div class="ch">
+          <span>{{ step() === 'MFA_SETUP' ? 'Uparivanje Authenticator aplikacije' : 'Kod iz Authenticator aplikacije' }}</span>
+          <span class="mono num">03</span>
+        </div>
+        <div class="cbody">
+          @if (step() === 'MFA_SETUP' && mfaSetup(); as setup) {
+            <div class="pair">
+              <img [src]="setup.qrCode" alt="QR kod za Authenticator aplikaciju" width="132" height="132" />
+              <div class="pair-text">
+                <span>Skenirajte QR kod u Authenticator aplikaciji i unesite prikazani kod.</span>
+                <span class="lbl">Ručni unos ključa</span>
+                <span class="mono secret">{{ setup.secret }}</span>
+              </div>
+            </div>
+          } @else if (step() === 'MFA_VERIFY') {
+            <p class="text">Unesite šestocifreni kod za <span class="mono strong">{{ email() }}</span>.</p>
+          }
+          <app-code-input #code [disabled]="(step() !== 'MFA_VERIFY' && step() !== 'MFA_SETUP') || busy()"
+            (completed)="submitCode($event)" />
+          <div class="meta-row">
+            <span>Kod se menja za <span class="mono strong">{{ countdown() }}</span></span>
+            <a href="#" (click)="$event.preventDefault(); showLostDevice.set(!showLostDevice())">Izgubljen uređaj?</a>
+          </div>
+          @if (showLostDevice()) {
+            <div class="alert warn">Obratite se administratoru da vam resetuje pristup.</div>
+          }
+          @if (codeError(); as error) {
+            <div class="alert err" role="alert">{{ error }}</div>
+          }
+          <button type="button" class="btn lg push" [disabled]="busy() || (step() !== 'MFA_VERIFY' && step() !== 'MFA_SETUP')"
+            (click)="submitCode(code.value())">
+            {{ busy() && (step() === 'MFA_VERIFY' || step() === 'MFA_SETUP') ? 'Provera…' : 'Potvrdi' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

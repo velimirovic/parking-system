@@ -1,0 +1,148 @@
+.methods,
+.cells {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.m {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid var(--line-soft);
+}
+.m:nth-child(-n + 2) {
+  border-top: 0;
+}
+.m:nth-child(even),
+.cell:nth-child(even) {
+  border-left: 1px solid var(--line-soft);
+}
+.ic {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  background: var(--surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+.m-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.m-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.m-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+.state {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 6px;
+}
+.state.on {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.state.off {
+  background: var(--neutral-bg);
+  color: var(--text-2);
+}
+.state.warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.cfg {
+  font-size: 12px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.last {
+  font-size: 12px;
+  color: var(--warn);
+}
+.link {
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+}
+.cfg-form {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--line-soft);
+}
+.cfg-actions,
+.url-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 20px;
+  border-top: 1px solid var(--line-soft);
+}
+.cell:nth-child(-n + 2) {
+  border-top: 0;
+}
+.cell-value {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  font-size: 14px;
+}
+.url {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.url-form {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .methods,
+  .cells {
+    grid-template-columns: 1fr;
+  }
+  .m:nth-child(even),
+  .cell:nth-child(even) {
+    border-left: 0;
+  }
+  .m:nth-child(2),
+  .cell:nth-child(2) {
+    border-top: 1px solid var(--line-soft);
+  }
+}

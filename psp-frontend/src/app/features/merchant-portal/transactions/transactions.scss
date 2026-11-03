@@ -1,0 +1,100 @@
+.tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+  min-width: 260px;
+}
+.search input {
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 14px;
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+}
+.tool {
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 0;
+}
+.value.multi {
+  font-size: 18px;
+  line-height: 1.4;
+}
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-block);
+  align-items: flex-start;
+}
+.list {
+  flex: 999 1 560px;
+  min-width: 0;
+}
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  gap: 12px;
+}
+.pager-btns {
+  display: flex;
+  gap: 6px;
+}
+.detail {
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.amount {
+  font-size: 28px;
+  font-weight: 500;
+}
+.kvs {
+  display: flex;
+  flex-direction: column;
+}
+.gtx {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.deliveries {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.delivery {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 10px 12px;
+  background: var(--surface-alt);
+}

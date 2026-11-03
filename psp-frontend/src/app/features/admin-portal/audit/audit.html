@@ -1,0 +1,80 @@
+<div class="page-head">
+  <div class="page-title">
+    <span class="lbl">Bezbednost</span>
+    <h1>Audit log</h1>
+  </div>
+  <div class="verify">
+    @if (verification(); as v) {
+      @if (v.valid) {
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B46" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+        <span>Lanac hash-eva verifikovan ({{ v.checkedEntries }})</span>
+      } @else {
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A4281F" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        <span style="color: var(--err)">Lanac je narušen kod zapisa #{{ v.brokenAtSeq }}</span>
+      }
+    }
+    <button type="button" class="sb" [disabled]="verifying()" (click)="verify()">{{ verifying() ? 'Provera…' : 'Proveri lanac' }}</button>
+  </div>
+</div>
+
+<div class="filters">
+  <select class="in sm" aria-label="Akcija" (change)="setFilter('action', $event)">
+    <option value="">Akcija: sve</option>
+    @for (a of actions; track a) {
+      <option [value]="a">{{ a }}</option>
+    }
+  </select>
+  <select class="in sm" aria-label="Ishod" (change)="setFilter('outcome', $event)">
+    <option value="">Ishod: svi</option>
+    <option value="SUCCESS">Success</option>
+    <option value="FAILURE">Failure</option>
+  </select>
+  <input class="in sm" placeholder="Akter (e-pošta)" aria-label="Akter" (input)="setFilter('actor', $event)" />
+</div>
+
+@if (error(); as e) {
+  <div class="alert err" role="alert">{{ e }}</div>
+}
+
+<div class="panel">
+  <div class="table-wrap">
+    <table class="grid">
+      <thead>
+        <tr><th>Vreme</th><th>Akter</th><th>Akcija</th><th>Resurs</th><th>IP</th><th>Ishod</th><th>Detalji</th><th>Hash</th></tr>
+      </thead>
+      <tbody>
+        @for (e of page()?.items ?? []; track e.id) {
+          <tr>
+            <td class="mono" [title]="dateTime(e.occurredAt)">{{ preciseTime(e.occurredAt) }}</td>
+            <td>{{ actorLabel(e) }}</td>
+            <td class="mono">{{ e.action }}</td>
+            <td class="mono">{{ resource(e) }}</td>
+            <td class="mono">{{ e.sourceIp ?? '—' }}</td>
+            <td>
+              @if (e.outcome === 'SUCCESS') {
+                <span class="b ok"><i></i>Success</span>
+              } @else {
+                <span class="b rd"><i></i>Failure</span>
+              }
+            </td>
+            <td class="details" [title]="e.details ?? ''">{{ e.details ?? '' }}</td>
+            <td class="mono muted" [title]="e.hash">{{ shortHash(e.hash) }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="8" class="empty-row">Nema zapisa za zadate kriterijume.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  @if (page(); as p) {
+    @if (p.totalPages > 1) {
+      <div class="pager">
+        <span class="note">Strana {{ p.page + 1 }} od {{ p.totalPages }} · ukupno {{ p.totalItems }}</span>
+        <div>
+          <button type="button" class="sb" [disabled]="p.page === 0" (click)="load(p.page - 1)">Novije</button>
+          <button type="button" class="sb" [disabled]="p.page + 1 >= p.totalPages" (click)="load(p.page + 1)">Starije</button>
+        </div>
+      </div>
+    }
+  }
+</div>

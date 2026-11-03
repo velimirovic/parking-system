@@ -1,0 +1,46 @@
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-block);
+  align-items: flex-start;
+}
+.list {
+  flex: 999 1 520px;
+  min-width: 0;
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-alt);
+  min-height: 50px;
+}
+.btns {
+  display: flex;
+  gap: 6px;
+}
+.form {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.checks {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 10px 16px;
+  justify-content: start;
+}

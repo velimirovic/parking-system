@@ -1,0 +1,140 @@
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  background: var(--navy);
+}
+.top-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.sub {
+  font-size: 13px;
+  color: var(--navy-muted);
+  padding-left: 16px;
+  border-left: 1px solid var(--navy-line);
+}
+
+.main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 44px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-section);
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-block);
+  align-items: stretch;
+}
+.card {
+  flex: 1 1 320px;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  opacity: 0.72;
+}
+.card.active {
+  border-color: var(--navy);
+  opacity: 1;
+}
+.ch {
+  padding: 11px 22px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-alt);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.card.active .ch {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+.ch .num {
+  font-weight: 400;
+  color: var(--text-3);
+}
+.card.active .ch .num {
+  color: var(--navy-muted);
+}
+.cbody {
+  padding: 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+}
+.push {
+  margin-top: auto;
+}
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.strong {
+  color: var(--text);
+}
+.done {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.pair {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.pair img {
+  border: 1px solid var(--line);
+  flex: none;
+}
+.pair-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-2);
+  min-width: 0;
+}
+.secret {
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+@media (max-width: 720px) {
+  .main,
+  .top-inner {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

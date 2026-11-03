@@ -1,0 +1,112 @@
+<div class="page-head">
+  <div class="page-title">
+    <span class="lbl">{{ today }}</span>
+    <h1>Transakcije</h1>
+  </div>
+  <div class="tools">
+    <label class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F5A6E" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+      <input aria-label="Pretraga" placeholder="ORDER_ID, PSP ID ili GTX" [value]="query()" (input)="onSearch($event)" />
+    </label>
+    <select class="tool" aria-label="Status" (change)="onStatus($event)">
+      <option value="">Status: svi</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">Status: {{ labels[s] }}</option>
+      }
+    </select>
+    <button type="button" class="tool" [disabled]="exporting()" (click)="exportCsv()">
+      {{ exporting() ? 'Izvoz…' : 'Izvoz CSV' }}
+    </button>
+  </div>
+</div>
+
+<div class="stats">
+  <div><span class="lbl">Promet danas</span><span class="value" [class.multi]="(stats()?.turnover?.length ?? 0) > 1">{{ turnover() }}</span></div>
+  <div><span class="lbl">Transakcija</span><span class="value">{{ count() }}</span></div>
+  <div><span class="lbl">Uspešnost</span><span class="value">{{ successRate() }}</span></div>
+  <div>
+    <span class="lbl">Webhook na čekanju</span>
+    <span class="value" [style.color]="(stats()?.pendingWebhooks ?? 0) > 0 ? 'var(--warn)' : null">{{ stats()?.pendingWebhooks ?? 0 }}</span>
+  </div>
+</div>
+
+@if (error(); as e) {
+  <div class="alert err" role="alert">{{ e }}</div>
+}
+
+<div class="layout">
+  <div class="panel list">
+    <div class="table-wrap">
+      <table class="grid">
+        <thead>
+          <tr>
+            <th>Vreme</th><th>MERCHANT_ORDER_ID</th><th>Metoda</th><th class="num">Iznos</th><th>Status</th><th>Webhook</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of page()?.items ?? []; track t.id) {
+            <tr class="clickable" [class.selected]="selected()?.id === t.id" tabindex="0"
+              (click)="open(t)" (keydown.enter)="open(t)">
+              <td class="mono">{{ rowTime(t.createdAt) }}</td>
+              <td class="mono">{{ t.merchantOrderId }}</td>
+              <td>{{ t.methodName ?? '—' }}</td>
+              <td class="mono num">{{ money(t.amount, t.currency) }}</td>
+              <td><span class="b {{ statusClass(t.status) }}"><i></i>{{ labels[t.status] }}</span></td>
+              <td class="mono" [style.color]="webhookColor(t.webhook)">{{ webhookText(t.webhook) }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="empty-row">{{ loading() ? 'Učitavanje…' : 'Nema transakcija za zadate kriterijume.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (page(); as p) {
+      @if (p.totalPages > 1) {
+        <div class="pager">
+          <span class="note">Strana {{ p.page + 1 }} od {{ p.totalPages }} · ukupno {{ p.totalItems }}</span>
+          <div class="pager-btns">
+            <button type="button" class="sb" [disabled]="p.page === 0" (click)="load(p.page - 1)">Prethodna</button>
+            <button type="button" class="sb" [disabled]="p.page + 1 >= p.totalPages" (click)="load(p.page + 1)">Sledeća</button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <aside class="panel strong detail">
+    @if (selected(); as d) {
+      <div class="row-between">
+        <span class="lbl">Detalji transakcije</span>
+        <span class="b {{ statusClass(d.status) }}"><i></i>{{ labels[d.status] }}</span>
+      </div>
+      <span class="mono amount">{{ money(d.amount, d.currency) }}</span>
+      <div class="kvs">
+        <div class="kv"><span>MERCHANT_ORDER_ID</span><span class="mono">{{ d.merchantOrderId }}</span></div>
+        <div class="kv"><span>PSP ID</span><span class="mono" [title]="d.id">{{ d.id.slice(0, 8).toUpperCase() }}</span></div>
+        <div class="kv"><span>Metoda</span><span>{{ d.methodName ?? 'nije izabrana' }}</span></div>
+        <div class="kv"><span>STAN</span><span class="mono">{{ d.stan ?? '—' }}</span></div>
+        <div class="kv"><span>PSP_TIMESTAMP</span><span class="mono">{{ preciseTime(d.pspTimestamp) }}</span></div>
+        <div class="kv"><span>GLOBAL_TX_ID</span><span class="mono gtx" [title]="d.globalTransactionId ?? ''">{{ d.globalTransactionId ?? '—' }}</span></div>
+        <div class="kv"><span>ACQUIRER_TS</span><span class="mono">{{ preciseTime(d.acquirerTimestamp) }}</span></div>
+        <div class="kv"><span>Ističe</span><span class="mono">{{ dateTime(d.expiresAt) }}</span></div>
+      </div>
+      <div class="deliveries">
+        <span class="lbl">Isporuka statusa</span>
+        @for (w of d.deliveries; track w.createdAt) {
+          <div class="delivery">
+            <span>{{ w.eventType }}</span>
+            <span class="mono" [style.color]="w.status === 'DELIVERED' ? 'var(--ok)' : 'var(--warn)'">
+              {{ w.lastHttpStatus ?? '—' }} ·
+              @if (w.status === 'DELIVERED') { {{ w.durationMs }} ms } @else { pokušaj {{ w.attempts }}/{{ w.maxAttempts }} }
+            </span>
+          </div>
+        } @empty {
+          <span class="note">Status još nije isporučen klijentu.</span>
+        }
+      </div>
+      <button type="button" class="btn danger" disabled title="Refundacija se implementira u okviru KT2">Refundiraj</button>
+    } @else {
+      <span class="note">Izaberite transakciju iz tabele.</span>
+    }
+  </aside>
+</div>

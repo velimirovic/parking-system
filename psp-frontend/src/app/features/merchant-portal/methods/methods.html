@@ -1,0 +1,121 @@
+<div class="page-head">
+  <div class="page-title">
+    <span class="lbl">Podešavanja klijenta</span>
+    <h1>Metode plaćanja i integracija</h1>
+  </div>
+</div>
+
+@if (error(); as e) {
+  <div class="alert err" role="alert">{{ e }}</div>
+}
+@if (notice(); as n) {
+  <div class="alert ok" role="status">{{ n }}</div>
+}
+@if (secrets(); as s) {
+  <app-one-time-secrets [title]="s.title" [items]="s.items"
+    (closed)="secrets.set(null)" />
+}
+
+<section class="panel">
+  <div class="hd">
+    <span>Pretplaćene metode</span>
+    <span class="meta"><span class="mono">{{ data()?.activeCount ?? '–' }}</span> od {{ totalMethods() }} aktivno</span>
+  </div>
+  <div class="methods">
+    @for (m of data()?.methods ?? []; track m.code) {
+      <div class="m">
+        <span class="ic">{{ abbr[m.code] ?? m.code.slice(0, 4) }}</span>
+        <div class="m-body">
+          <span class="m-title">
+            <span class="m-name">{{ m.displayName }}</span>
+            @if (m.active && m.availableOnPsp) {
+              <span class="state on">Aktivna</span>
+            } @else if (m.active) {
+              <span class="state warn">Plugin nedostupan</span>
+            } @else if (m.subscribed) {
+              <span class="state off">Isključena</span>
+            } @else {
+              <span class="state off">Nije pretplaćena</span>
+            }
+          </span>
+          <span class="mono cfg" [title]="configSummary(m)">{{ configSummary(m) }}</span>
+          @if (m.lastActive) {
+            <span class="last">Poslednja aktivna — ne može se isključiti</span>
+          }
+          @if (m.subscribed) {
+            <button type="button" class="link" (click)="startConfig(m)">
+              {{ editingConfig() === m.code ? 'Zatvori podešavanje' : 'Podesi parametre' }}
+            </button>
+          }
+        </div>
+        <button type="button" class="tg" role="switch" [class.on]="m.active"
+          [attr.aria-checked]="m.active" [attr.aria-label]="m.displayName"
+          [disabled]="m.lastActive || busyCode() === m.code || (!m.active && !m.availableOnPsp)"
+          [title]="m.lastActive ? 'Mora ostati bar jedna aktivna metoda plaćanja' : ''"
+          (click)="toggle(m)"><span></span></button>
+
+        @if (editingConfig() === m.code) {
+          <form class="cfg-form" (submit)="$event.preventDefault(); saveConfig(m)">
+            @for (f of fieldsFor(m.code); track f.key) {
+              <label class="field">
+                <span class="lbl">{{ f.label }}</span>
+                <input class="in sm mono" autocomplete="off" placeholder="prazno = bez promene"
+                  (input)="setDraft(f.key, $event)" />
+              </label>
+            }
+            <div class="cfg-actions">
+              <button type="submit" class="btn" [disabled]="busyCode() === m.code">Sačuvaj</button>
+            </div>
+          </form>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<section class="panel">
+  <div class="hd">
+    <span>Integracija</span>
+  </div>
+  @if (profile(); as p) {
+    <div class="cells">
+      <div class="cell">
+        <div class="cell-value"><span class="lbl">MERCHANT_ID</span><span class="mono">{{ p.merchantCode }}</span></div>
+        <button type="button" class="sb" (click)="copyMerchantId()">{{ copied() ? 'Kopirano' : 'Kopiraj' }}</button>
+      </div>
+      <div class="cell">
+        <div class="cell-value"><span class="lbl">Ograničenje zahteva</span><span class="mono">{{ p.rateLimitPerSec }} zahteva / s</span></div>
+        <span class="note">super admin</span>
+      </div>
+      <div class="cell">
+        <div class="cell-value"><span class="lbl">API ključ</span><span class="mono">{{ p.apiKeyMasked }}</span></div>
+        <button type="button" class="sb" (click)="rotate('api')">Rotiraj</button>
+      </div>
+      <div class="cell">
+        <div class="cell-value"><span class="lbl">Webhook HMAC tajna</span><span class="mono">{{ p.webhookSecretMasked }}</span></div>
+        <button type="button" class="sb" (click)="rotate('webhook')">Rotiraj</button>
+      </div>
+      @for (row of urlRows; track row.field) {
+        <div class="cell">
+          @if (editingUrl() === row.field) {
+            <form class="url-form" (submit)="$event.preventDefault(); saveUrl()">
+              <span class="lbl">{{ row.label }}</span>
+              <input class="in sm mono" [value]="urlDraft()" (input)="urlDraft.set($any($event.target).value)"
+                placeholder="https://" aria-label="{{ row.label }}" />
+              <div class="url-actions">
+                <button type="submit" class="sb">Sačuvaj</button>
+                <button type="button" class="sb" (click)="editingUrl.set(null)">Otkaži</button>
+              </div>
+            </form>
+          } @else {
+            <div class="cell-value">
+              <span class="lbl">{{ row.label }}</span>
+              <span class="mono url" [title]="urlValue(row.field)">{{ urlValue(row.field) || 'nije podešen' }}</span>
+            </div>
+            <button type="button" class="sb" (click)="startUrl(row.field)">Izmeni</button>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

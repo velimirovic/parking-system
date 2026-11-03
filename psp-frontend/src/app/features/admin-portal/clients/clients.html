@@ -1,0 +1,113 @@
+<div class="page-title">
+  <span class="lbl">Upravljanje</span>
+  <h1>Klijenti</h1>
+</div>
+
+@if (error(); as e) {
+  <div class="alert err" role="alert">{{ e }}</div>
+}
+@if (credentials(); as c) {
+  <app-one-time-secrets [title]="c.title" [items]="c.items" (closed)="credentials.set(null)" />
+}
+
+<div class="layout">
+  <div class="panel list">
+    <div class="hd"><span>Registrovani klijenti</span><span class="meta mono">{{ merchants().length }}</span></div>
+    <div class="table-wrap">
+      <table class="grid">
+        <thead>
+          <tr><th>Klijent</th><th>MERCHANT_ID</th><th>Metode</th><th class="num">Limit/s</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          @for (m of merchants(); track m.id) {
+            <tr class="clickable" [class.selected]="selectedId() === m.id" tabindex="0"
+              (click)="selectedId.set(m.id)" (keydown.enter)="selectedId.set(m.id)">
+              <td>
+                <div class="who">
+                  <span style="font-weight: 500">{{ m.name }}</span>
+                  <span class="note">{{ m.adminEmail }}</span>
+                </div>
+              </td>
+              <td class="mono">{{ m.merchantCode }}</td>
+              <td class="mono">{{ m.activeMethods.join(' · ') || '—' }}</td>
+              <td class="mono num">{{ m.rateLimitPerSec }}</td>
+              <td>
+                @if (m.status === 'INACTIVE') {
+                  <span class="b gr"><i></i>Neaktivan</span>
+                } @else if (m.pendingFirstLogin) {
+                  <span class="b am"><i></i>Čeka 1. prijavu</span>
+                } @else {
+                  <span class="b ok"><i></i>Aktivan</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty-row">{{ loading() ? 'Učitavanje…' : 'Još nema registrovanih klijenata.' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="actions">
+      @if (selected(); as m) {
+        <span class="note">Izabran: <strong>{{ m.name }}</strong></span>
+        <div class="btns">
+          <button type="button" class="sb" [disabled]="rowBusy() === m.id" (click)="changeLimit(m)">Promeni limit</button>
+          <button type="button" class="sb" [disabled]="rowBusy() === m.id" (click)="resetAccess(m)">Reset pristupa</button>
+          <button type="button" class="sb" [class.danger]="m.status === 'ACTIVE'" [disabled]="rowBusy() === m.id"
+            (click)="toggleStatus(m)">{{ m.status === 'ACTIVE' ? 'Deaktiviraj' : 'Aktiviraj' }}</button>
+        </div>
+      } @else {
+        <span class="note">Izaberite klijenta u tabeli za izmenu limita, reset pristupa ili deaktivaciju.</span>
+      }
+    </div>
+  </div>
+
+  <form class="panel strong form" (submit)="register($event)" novalidate>
+    <div class="hd dark">Registracija novog klijenta</div>
+    <div class="body">
+      <label class="field">
+        <span class="lbl">Naziv</span>
+        <input class="in sm" placeholder="npr. Online prodavnica" [value]="draft().name"
+          [class.invalid]="!!fieldErrors()['name']" (input)="set('name', $event)" />
+        @if (fieldErrors()['name']; as fe) { <span class="field-error">{{ fe }}</span> }
+      </label>
+      <label class="field">
+        <span class="lbl">E-pošta administratora</span>
+        <input class="in sm" type="email" placeholder="admin@domen.rs" [value]="draft().adminEmail"
+          [class.invalid]="!!fieldErrors()['adminEmail']" (input)="set('adminEmail', $event)" />
+        @if (fieldErrors()['adminEmail']; as fe) { <span class="field-error">{{ fe }}</span> }
+      </label>
+      <label class="field">
+        <span class="lbl">Ime i prezime administratora</span>
+        <input class="in sm" placeholder="opciono" [value]="draft().adminFullName" (input)="set('adminFullName', $event)" />
+      </label>
+      <label class="field">
+        <span class="lbl">Webhook URL</span>
+        <input class="in sm mono" placeholder="https://" [value]="draft().webhookUrl"
+          [class.invalid]="!!fieldErrors()['webhookUrl']" (input)="set('webhookUrl', $event)" />
+        @if (fieldErrors()['webhookUrl']; as fe) { <span class="field-error">{{ fe }}</span> }
+      </label>
+      <label class="field">
+        <span class="lbl">Ograničenje zahteva / s</span>
+        <input class="in sm mono" type="number" min="1" max="10000" [value]="draft().rateLimitPerSec"
+          [class.invalid]="!!fieldErrors()['rateLimitPerSec']" (input)="set('rateLimitPerSec', $event)" />
+        @if (fieldErrors()['rateLimitPerSec']; as fe) { <span class="field-error">{{ fe }}</span> }
+      </label>
+      <div class="field">
+        <span class="lbl">Metode plaćanja</span>
+        <div class="checks">
+          @for (p of methods(); track p.code) {
+            <label class="cb">
+              <input type="checkbox" [checked]="draft().methods.includes(p.code)" (change)="toggleMethod(p.code, $event)" />
+              {{ p.displayName }}
+            </label>
+          }
+        </div>
+      </div>
+      @if (formError(); as fe) {
+        <div class="alert err" role="alert">{{ fe }}</div>
+      }
+      <button type="submit" class="btn" [disabled]="busy()">{{ busy() ? 'Registracija…' : 'Registruj i pošalji pristup' }}</button>
+    </div>
+  </form>
+</div>
