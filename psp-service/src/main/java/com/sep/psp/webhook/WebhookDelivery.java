@@ -38,6 +38,9 @@ public class WebhookDelivery {
 
     private Integer lastHttpStatus;
     private Integer lastDurationMs;
+
+    /** Demo zapis za prikaz portala - dispatcher ga ne salje. */
+    private boolean simulated;
     private Instant createdAt;
     private Instant updatedAt;
 

@@ -1,0 +1,47 @@
+server:
+  port: ${SERVER_PORT:9101}
+
+spring:
+  application:
+    name: card-plugin
+  # Plugin ima svoju semu (card_plugin) u bazi PSP-a - PSP Core poznaje samo PSP_TRANSACTION
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5434}/psp_db}
+    username: ${DB_USERNAME:sep}
+    password: ${DB_PASSWORD:sep}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: card_plugin
+  flyway:
+    enabled: true
+    schemas: card_plugin
+    default-schema: card_plugin
+    create-schemas: true
+    locations: classpath:db/migration
+  mvc:
+    problemdetails:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  plugin:
+    # HMAC kljuc PSP Core <-> plugin-ovi (isti kao PLUGIN_SHARED_SECRET u psp-service). SAMO za lokalni razvoj.
+    psp-shared-secret: ${PLUGIN_SHARED_SECRET:dev-only-plugin-secret-change-me-0123456789}
+    core-base-url: ${PSP_CORE_URL:http://localhost:8082}
+    # Adresa na kojoj banka dostavlja rezultat placanja ovom plugin-u
+    public-base-url: ${PLUGIN_PUBLIC_URL:http://localhost:9101}
+    bank-base-url: ${BANK_URL:http://localhost:8083}
+    # HMAC kljuc PSP <-> banka (isti kao BANK_PSP_HMAC_SECRET u bank-service). SAMO za lokalni razvoj.
+    bank-hmac-secret: ${BANK_PSP_HMAC_SECRET:dev-only-bank-psp-secret-change-me-0123456789}
+    max-clock-skew-seconds: 300
+    # Posle koliko sekundi bez obavestenja banke plugin sam proverava status placanja
+    status-poll-after-seconds: 90

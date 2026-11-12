@@ -32,3 +32,18 @@ management:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4202}
+
+  security:
+    # Javna adresa stranice banke: PAYMENT_URL = {base}/placanje/{PAYMENT_ID}
+    payment-page-base-url: ${PAYMENT_PAGE_BASE_URL:http://localhost:4202}
+    # Forma za placanje je vremenski ogranicena (specifikacija, korak 4d)
+    payment-ttl-minutes: 10
+    max-clock-skew-seconds: 300
+    # Vrednosti ispod su SAMO za lokalni razvoj - van razvoja obavezno postaviti kroz okruzenje
+    psp-hmac-secret: ${BANK_PSP_HMAC_SECRET:dev-only-bank-psp-secret-change-me-0123456789}
+    card-encryption-key: ${CARD_ENCRYPTION_KEY:ZGV2LW9ubHktY2FyZC1rZXktY2hhbmdlLW1lLTMyYnk=}
+    card-token-key: ${CARD_TOKEN_KEY:dev-only-card-token-key-change-me-0123456789}
+
+  demo-data:
+    # Test kupci, racuni i kartice (iskljuciti van razvoja)
+    enabled: ${DEMO_DATA_ENABLED:true}

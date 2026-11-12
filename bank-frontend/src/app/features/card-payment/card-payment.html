@@ -1,0 +1,193 @@
+<div class="bk">
+  <header class="bk-top">
+    <div class="bk-top-in">
+      <span class="bk-brand">
+        <span class="bk-logo" aria-hidden="true">B</span>
+        <span style="font-weight: 600; letter-spacing: 0.02em">SEP Banka</span>
+        <span class="bk-sub">Sigurno plaćanje karticom</span>
+      </span>
+      <span class="bk-secure">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7BC89A" stroke-width="2" aria-hidden="true">
+          <rect x="5" y="11" width="14" height="10" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </svg>
+        Zaštićena veza
+      </span>
+    </div>
+  </header>
+
+  <main class="bk-main">
+    @if (notFound()) {
+      <div class="pay-state" role="alert">
+        <h1>Plaćanje nije pronađeno</h1>
+        <p>Link za plaćanje nije ispravan ili je istekao. Vratite se kod prodavca i pokrenite plaćanje ponovo.</p>
+      </div>
+    } @else if (loadError()) {
+      <div class="pay-state" role="alert">
+        <h1>Banka trenutno nije dostupna</h1>
+        <p>{{ loadError() }}</p>
+      </div>
+    } @else if (!view()) {
+      <div class="pay-state" aria-busy="true"><p>Učitavanje…</p></div>
+    } @else {
+      @let v = view()!;
+      <div class="pay">
+        <section class="pay-sum">
+          <div class="pay-row-col">
+            <span class="lbl">Primalac</span>
+            <span style="font-weight: 600; font-size: 16px">{{ v.merchantName }}</span>
+            <span style="font-size: 13px; color: var(--text-2)">preko Maluvufy Pay</span>
+          </div>
+          <div class="pay-amount">
+            <span class="lbl" style="display: flex; align-items: center; gap: 6px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4F5A6E" stroke-width="2" aria-hidden="true">
+                <rect x="5" y="11" width="14" height="10" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              Iznos — nije moguće menjati
+            </span>
+            <span class="mono pay-amount-v">{{ amount(v.amount) }} <span class="cur">{{ v.currency }}</span></span>
+          </div>
+          <div class="pay-meta">
+            <div><span>PAYMENT_ID</span><span class="mono">{{ v.paymentId }}</span></div>
+            <div><span>Forma ističe za</span><span class="mono" style="font-weight: 500">{{ left() }}</span></div>
+            <div><span>Pokušaji</span><span class="mono">{{ v.attemptUsed || result() || closedUrl() ? 0 : 1 }} / 1</span></div>
+          </div>
+          <p class="pay-note">
+            Ova stranica je vezana za jednu transakciju i dozvoljava samo jedan pokušaj plaćanja. Podatke kartice vidi
+            isključivo banka.
+          </p>
+        </section>
+
+        @if (result(); as r) {
+          <section class="pay-form pay-done" role="status">
+            <span class="pay-mark" [class.ok]="r.status === 'APPROVED'" aria-hidden="true">{{ r.status === 'APPROVED' ? '✓' : '×' }}</span>
+            <h1>{{ r.status === 'APPROVED' ? 'Plaćanje je odobreno' : 'Plaćanje nije uspelo' }}</h1>
+            <p>{{ r.message }}</p>
+            <p class="muted">Vraćamo vas na stranicu za potvrdu plaćanja…</p>
+            <button type="button" class="btn" (click)="returnNow()">Nastavi</button>
+          </section>
+        } @else if (closedText()) {
+          <section class="pay-form pay-done" role="alert">
+            <span class="pay-mark" aria-hidden="true">!</span>
+            <h1>Forma više nije aktivna</h1>
+            <p>{{ closedText() }}</p>
+            @if (closedUrl()) {
+              <button type="button" class="btn" (click)="returnNow()">Vrati se</button>
+            }
+          </section>
+        } @else {
+          <form class="pay-form" (submit)="$event.preventDefault(); pay()" autocomplete="on" novalidate>
+            <div class="pay-head">
+              <h1>Podaci o kartici</h1>
+              <div class="brands" aria-label="Prihvaćene kartice">
+                <span class="cl" [class.on]="brand() === 'VISA'">VISA</span>
+                <span class="cl" [class.on]="brand() === 'MASTERCARD'">Mastercard</span>
+                <span class="cl" [class.on]="brand() === 'DINACARD'">DinaCard</span>
+              </div>
+            </div>
+
+            <label class="fld">
+              <span class="lbl">Broj kartice (PAN)</span>
+              <input
+                class="in mono"
+                style="letter-spacing: 0.06em"
+                name="cardnumber"
+                inputmode="numeric"
+                autocomplete="cc-number"
+                maxlength="23"
+                [value]="pan()"
+                [class.invalid]="(touched().pan || digits().length >= 13) && !panOk()"
+                [attr.aria-invalid]="(touched().pan || digits().length >= 13) && !panOk()"
+                aria-describedby="pan-msg"
+                [disabled]="busy()"
+                (input)="onPan($event)"
+                (blur)="touch('pan')"
+              />
+              <span id="pan-msg" class="msg" [class.ok]="panOk()" [class.err]="(touched().pan || digits().length >= 13) && !panOk()">{{ panMessage() }}</span>
+            </label>
+
+            <label class="fld">
+              <span class="lbl">Ime vlasnika kartice</span>
+              <input
+                class="in"
+                style="text-transform: uppercase"
+                name="ccname"
+                autocomplete="cc-name"
+                maxlength="100"
+                [value]="holder()"
+                [class.invalid]="touched().holder && !holderOk()"
+                [attr.aria-invalid]="touched().holder && !holderOk()"
+                aria-describedby="holder-msg"
+                [disabled]="busy()"
+                (input)="onHolder($event)"
+                (blur)="touch('holder')"
+              />
+              <span id="holder-msg" class="msg" [class.err]="touched().holder && !holderOk()">
+                {{ touched().holder && !holderOk() ? 'Unesite ime kao na kartici' : 'Kao što piše na kartici' }}
+              </span>
+            </label>
+
+            <div class="pay-two">
+              <label class="fld">
+                <span class="lbl">Važi do (MM/YY)</span>
+                <input
+                  class="in mono"
+                  name="cc-exp"
+                  inputmode="numeric"
+                  autocomplete="cc-exp"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                  [value]="expiry()"
+                  [class.invalid]="(touched().expiry || expiry().length === 5) && !expiryCheck().ok"
+                  [attr.aria-invalid]="(touched().expiry || expiry().length === 5) && !expiryCheck().ok"
+                  aria-describedby="exp-msg"
+                  [disabled]="busy()"
+                  (input)="onExpiry($event)"
+                  (blur)="touch('expiry')"
+                />
+                @let ex = expiryCheck();
+                <span id="exp-msg" class="msg" [class.ok]="ex.ok" [class.err]="(touched().expiry || expiry().length === 5) && !ex.ok">
+                  {{ serverFields()['expiry'] ?? (ex.ok ? 'Datum je ispravan' : ex.message) }}
+                </span>
+              </label>
+              <label class="fld">
+                <span class="lbl">Sigurnosni kod</span>
+                <input
+                  class="in mono"
+                  type="password"
+                  name="cvc"
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
+                  maxlength="3"
+                  [value]="cvv()"
+                  [class.invalid]="touched().cvv && !cvvOk()"
+                  [attr.aria-invalid]="touched().cvv && !cvvOk()"
+                  aria-describedby="cvv-msg"
+                  [disabled]="busy()"
+                  (input)="onCvv($event)"
+                  (blur)="touch('cvv')"
+                />
+                <span id="cvv-msg" class="msg" [class.err]="touched().cvv && !cvvOk()">3 cifre na poleđini kartice</span>
+              </label>
+            </div>
+
+            @if (error()) {
+              <div class="alert err" role="alert">{{ error() }}</div>
+            }
+            @if (secondsLeft() === 0) {
+              <div class="alert warn" role="alert">Vreme za plaćanje je isteklo.</div>
+            }
+
+            <button type="submit" class="btn pay-btn" [disabled]="!canPay()">
+              {{ busy() ? 'Obrada…' : 'Plati' }} <span class="mono">{{ amount(v.amount) }} {{ v.currency }}</span>
+            </button>
+            <button type="button" class="pay-back" [disabled]="busy()" (click)="cancel()">Odustani i vrati se</button>
+
+            <div class="pay-trust"><span>TLS 1.3</span><span>PCI DSS v4.0.1</span><span>CVV se ne čuva</span></div>
+          </form>
+        }
+      </div>
+    }
+  </main>
+</div>
