@@ -9,12 +9,22 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
 
 public interface PspTransactionRepository extends JpaRepository<PspTransaction, UUID> {
 
     Optional<PspTransaction> findByIdAndMerchantId(UUID id, UUID merchantId);
+
+    Optional<PspTransaction> findByMerchantIdAndMerchantOrderId(UUID merchantId, String merchantOrderId);
+
+    /** Lock na redu transakcije - serijalizuje izbor metode, otkazivanje i promene statusa. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from PspTransaction t where t.id = :id")
+    Optional<PspTransaction> findByIdForUpdate(@Param("id") UUID id);
 
     /** Pretraga po MERCHANT_ORDER_ID, PSP ID ili GLOBAL_TRANSACTION_ID - uvek ogranicena na jednog merchanta. */
     @Query("""

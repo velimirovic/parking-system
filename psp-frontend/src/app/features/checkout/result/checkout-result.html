@@ -1,0 +1,68 @@
+<div class="co">
+  <header class="co-top">
+    <div class="co-top-in"><span class="wordmark">Maluvufy <em>Pay</em></span></div>
+  </header>
+
+  <main class="co-main">
+    <section class="co-left">
+      @if (notFound()) {
+        <div class="co-state" role="alert">
+          <span class="co-mark bad" aria-hidden="true">!</span>
+          <h1>Plaćanje nije pronađeno</h1>
+          <p>Link nije ispravan. Status plaćanja proverite u aplikaciji prodavca.</p>
+        </div>
+      } @else if (final(); as f) {
+        <div class="co-state" role="status">
+          <span class="co-mark" [class.ok]="f.ok" [class.bad]="!f.ok" aria-hidden="true">{{ f.ok ? '✓' : '×' }}</span>
+          <h1>{{ f.title }}</h1>
+          <p>{{ f.text }}</p>
+          @if (view()?.returnUrl) {
+            <div class="co-actions">
+              <button type="button" class="btn" (click)="returnNow()">Vrati se prodavcu</button>
+            </div>
+          }
+        </div>
+      } @else if (gaveUp()) {
+        <div class="co-state" role="status">
+          <span class="co-mark bad" aria-hidden="true">?</span>
+          <h1>Potvrda još nije stigla</h1>
+          <p>
+            Status plaćanja se i dalje proverava automatski, a prodavac će biti obavešten čim stigne konačan
+            odgovor. Možete zatvoriti ovu stranicu.
+          </p>
+          <div class="co-actions"><button type="button" class="btn outline" (click)="retry()">Proveri ponovo</button></div>
+        </div>
+      } @else {
+        <div class="co-state" role="status" aria-busy="true">
+          <span class="co-mark wait" aria-hidden="true"></span>
+          <span class="lbl">Korak 2 od 2</span>
+          <h1>Potvrđujemo plaćanje</h1>
+          <p>Čekamo konačan odgovor servisa za plaćanje. Ne zatvarajte stranicu — biće vam prikazan rezultat.</p>
+          @if (error()) {
+            <div class="alert warn">{{ error() }}</div>
+          }
+        </div>
+      }
+    </section>
+
+    @if (view(); as v) {
+      <aside class="co-aside">
+        <div class="co-card">
+          <span class="lbl">Prodavac</span>
+          <div class="co-merchant">
+            <span class="logo" aria-hidden="true">{{ v.merchantName.charAt(0) }}</span>
+            <span style="font-weight: 600">{{ v.merchantName }}</span>
+          </div>
+          <div class="co-amount">
+            <span class="lbl">Iznos</span>
+            <span class="mono">{{ money(v.amount, '').trim() }} <span class="cur">{{ v.currency }}</span></span>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <div class="kv"><span>Broj naloga</span><span class="mono" style="font-size: 13px">{{ v.merchantOrderId }}</span></div>
+            <div class="kv"><span>Transakcija</span><span class="mono" style="font-size: 13px">{{ v.reference }}</span></div>
+          </div>
+        </div>
+      </aside>
+    }
+  </main>
+</div>

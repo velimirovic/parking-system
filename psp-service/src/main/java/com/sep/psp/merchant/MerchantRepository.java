@@ -17,6 +17,9 @@ public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
 
     boolean existsByNameIgnoreCase(String name);
 
+    /** Po MERCHANT_ID iz tabele 1 (npr. MRC-00042) - identifikacija klijenta na merchant API-ju. */
+    Optional<Merchant> findByMerchantCode(String merchantCode);
+
     /** Lock na redu merchanta - serijalizuje promene metoda placanja istog klijenta. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from Merchant m where m.id = :id")

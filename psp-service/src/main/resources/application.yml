@@ -58,6 +58,16 @@ app:
     encryption-key: ${APP_ENCRYPTION_KEY:ZGV2LW9ubHktYWVzLWtleS1jaGFuZ2UtbWUtMzJieXQ=}
     mfa-issuer: Maluvufy Pay
 
+  payment:
+    # Javna adresa PSP frontenda - kupac se posle inicijalizacije preusmerava na {base}/placanje/{id}
+    checkout-base-url: ${CHECKOUT_BASE_URL:http://localhost:4201}
+    checkout-ttl-minutes: 15
+    # Zahtev merchanta sa X-Timestamp starijim od ovoga se odbija (zastita od ponovljenih zahteva)
+    max-clock-skew-seconds: 300
+    # HMAC kljuc PSP Core <-> plugin servisi. Vrednost ispod je SAMO za lokalni razvoj.
+    plugin-shared-secret: ${PLUGIN_SHARED_SECRET:dev-only-plugin-secret-change-me-0123456789}
+    plugin-timeout-millis: 10000
+
   bootstrap:
     # Prvi super admin se kreira pri pokretanju ako ne postoji; lozinka se menja pri prvoj prijavi
     super-admin-email: ${SUPER_ADMIN_EMAIL:superadmin@sep.rs}

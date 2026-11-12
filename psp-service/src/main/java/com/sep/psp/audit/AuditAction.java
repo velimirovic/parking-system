@@ -22,6 +22,9 @@ public final class AuditAction {
     public static final String PLUGIN_UPDATE = "PLUGIN_UPDATE";
     public static final String DATA_EXPORT = "DATA_EXPORT";
     public static final String AUDIT_VERIFY = "AUDIT_VERIFY";
+    public static final String MERCHANT_API_AUTH_FAILED = "MERCHANT_API_AUTH_FAILED";
+    public static final String TX_INIT = "TX_INIT";
+    public static final String TX_STATUS_CHANGE = "TX_STATUS_CHANGE";
 
     private AuditAction() {
     }

@@ -68,5 +68,16 @@ prijavi se postavlja nova lozinka i skenira QR kod u Google ili Microsoft Authen
 Demo parking klijent ima fiksni API ključ `sk_test_parking_demo_0000000000000000` i webhook tajnu
 `whsec_parking_demo_00000000000000000` (za konfiguraciju `parking-service`-a).
 
-Tajne (`PSP_JWT_SECRET`, `PSP_ENCRYPTION_KEY`, `PSP_SUPER_ADMIN_PASSWORD`) imaju razvojne vrednosti u
+Tajne (`PSP_JWT_SECRET`, `PSP_ENCRYPTION_KEY`, `PSP_SUPER_ADMIN_PASSWORD`, `PSP_PLUGIN_SHARED_SECRET`) imaju razvojne vrednosti u
 `docker-compose.yml`; van lokalnog razvoja obavezno ih postaviti u `.env`.
+
+### PSP - integracija klijenta
+
+Inicijalizacija transakcije, provera statusa, checkout kupca, webhook i ugovor sa plugin-ovima su opisani u
+[docs/psp-merchant-api.md](docs/psp-merchant-api.md). Za probu bez `parking-service`-a:
+
+```bash
+python scripts/psp_merchant.py init --amount 120 --currency RSD
+```
+
+Otvoriti `redirect_url` iz odgovora (checkout na http://localhost:4201/placanje/{id}).
