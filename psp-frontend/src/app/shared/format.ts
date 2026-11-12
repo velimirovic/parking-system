@@ -96,6 +96,10 @@ export const METHOD_ABBR: Record<string, string> = {
 /** ProblemDetail iz odgovora, ili opsta poruka kada server nije dostupan. */
 export function problemOf(error: unknown): ApiProblem {
   if (error instanceof HttpErrorResponse) {
+    // poslovna greska PSP-a (ProblemDetail sa kodom) ima prednost i kada je status 503
+    if (error.error && typeof error.error === 'object' && 'detail' in error.error && 'code' in error.error) {
+      return error.error as ApiProblem;
+    }
     if (error.status === 0 || error.status >= 502) {
       return { status: error.status, detail: 'PSP servis trenutno nije dostupan. Pokušajte ponovo.' };
     }

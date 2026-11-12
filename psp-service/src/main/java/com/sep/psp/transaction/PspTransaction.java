@@ -52,6 +52,12 @@ public class PspTransaction {
     private Instant acquirerTimestamp;
     private Instant expiresAt;
 
+    /** Opis kupovine od merchanta, prikazuje se na checkout stranici. */
+    private String description;
+
+    /** Gde plugin salje kupca (npr. PAYMENT_URL banke) - ponovljen izbor metode vraca isti URL. */
+    private String paymentRedirectUrl;
+
     @Version
     private long version;
 

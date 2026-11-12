@@ -81,6 +81,9 @@ services:
       SUPER_ADMIN_EMAIL: ${PSP_SUPER_ADMIN_EMAIL:-superadmin@sep.rs}
       SUPER_ADMIN_PASSWORD: ${PSP_SUPER_ADMIN_PASSWORD:-SuperAdmin-2026!}
       DEMO_DATA_ENABLED: ${PSP_DEMO_DATA_ENABLED:-true}
+      # Checkout kupca i HMAC tajna PSP Core <-> plugin servisi
+      CHECKOUT_BASE_URL: ${PSP_CHECKOUT_BASE_URL:-http://localhost:4201}
+      PLUGIN_SHARED_SECRET: ${PSP_PLUGIN_SHARED_SECRET:-dev-only-plugin-secret-change-me-0123456789}
     ports: ["8082:8082"]
     depends_on:
       psp-db: { condition: service_healthy }

@@ -238,3 +238,28 @@ export interface TransactionDetail {
   updatedAt: string;
   deliveries: Delivery[];
 }
+
+// ---------- checkout kupca ----------
+
+export interface CheckoutMethod {
+  code: string;
+  displayName: string;
+}
+
+export interface CheckoutView {
+  id: string;
+  reference: string;
+  merchantName: string;
+  merchantHost: string | null;
+  merchantOrderId: string;
+  amount: number;
+  currency: string;
+  description: string | null;
+  status: TransactionStatus;
+  paymentMethod: string | null;
+  expiresAt: string;
+  serverTime: string;
+  methods: CheckoutMethod[];
+  continueUrl: string | null;
+  returnUrl: string | null;
+}

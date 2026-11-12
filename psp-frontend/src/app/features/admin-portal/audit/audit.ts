@@ -21,7 +21,9 @@ const ACTIONS = [
   'PLUGIN_UPDATE',
   'DATA_EXPORT',
   'AUDIT_VERIFY',
+  'TX_INIT',
   'TX_STATUS_CHANGE',
+  'MERCHANT_API_AUTH_FAILED',
 ];
 
 /** S07 - audit log (PCI DSS zahtev 10): append-only zapisi ulancani hash-om, sa verifikacijom lanca. */

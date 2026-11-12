@@ -10,6 +10,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
+    // S01 - checkout kupca (javno, bez prijave)
+    path: 'placanje/:id',
+    title: 'Maluvufy Pay — plaćanje',
+    loadComponent: () =>
+      import('./features/checkout/method/checkout-method').then((m) => m.CheckoutMethod),
+  },
+  {
+    path: 'placanje/:id/rezultat',
+    title: 'Maluvufy Pay — status plaćanja',
+    loadComponent: () =>
+      import('./features/checkout/result/checkout-result').then((m) => m.CheckoutResult),
+  },
+  {
     // S05, S06 - klijentski portal
     path: 'klijent',
     canActivate: [roleGuard('MERCHANT_ADMIN')],

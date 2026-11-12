@@ -1,0 +1,154 @@
+<div class="co">
+  <header class="co-top">
+    <div class="co-top-in">
+      <span class="wordmark">Maluvufy <em>Pay</em></span>
+      @if (view()?.status === 'INIT') {
+        <span class="co-secure">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7BC89A" stroke-width="2" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10"></rect>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+          </svg>
+          Zaštićena veza · sesija ističe za <span class="mono" aria-live="off">{{ left() }}</span>
+        </span>
+      }
+    </div>
+  </header>
+
+  <main class="co-main">
+    @if (notFound()) {
+      <section class="co-state" role="alert">
+        <span class="co-mark bad" aria-hidden="true">!</span>
+        <h1>Plaćanje nije pronađeno</h1>
+        <p>Link za plaćanje nije ispravan. Vratite se u aplikaciju prodavca i pokrenite plaćanje ponovo.</p>
+      </section>
+    } @else if (!view()) {
+      @if (error()) {
+        <section class="co-state" role="alert">
+          <span class="co-mark bad" aria-hidden="true">!</span>
+          <h1>Plaćanje trenutno nije dostupno</h1>
+          <p>{{ error() }}</p>
+          <div class="co-actions"><button type="button" class="btn" (click)="load()">Pokušaj ponovo</button></div>
+        </section>
+      } @else {
+        <section class="co-state" aria-busy="true">
+          <span class="co-mark wait" aria-hidden="true"></span>
+          <p>Učitavanje naloga za plaćanje…</p>
+        </section>
+      }
+    } @else {
+      @let v = view()!;
+      <section class="co-left">
+        @if (final(); as f) {
+          <div class="co-state" role="status">
+            <span class="co-mark" [class.ok]="f.ok" [class.bad]="!f.ok" aria-hidden="true">{{ f.ok ? '✓' : '×' }}</span>
+            <h1>{{ f.title }}</h1>
+            <p>{{ f.text }}</p>
+            @if (v.returnUrl) {
+              <div class="co-actions">
+                <button type="button" class="btn" (click)="returnNow()">Vrati se prodavcu</button>
+              </div>
+            }
+          </div>
+        } @else if (v.status === 'PENDING') {
+          <div class="co-state" role="status">
+            <span class="co-mark wait" aria-hidden="true"></span>
+            <h1>Plaćanje je u toku</h1>
+            <p>Način plaćanja je već izabran. Nastavite plaćanje ili sačekajte potvrdu — status se proverava automatski.</p>
+            @if (v.continueUrl) {
+              <div class="co-actions">
+                <button type="button" class="btn" (click)="continuePayment()">Nastavi plaćanje</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="co-head">
+            <span class="lbl">Korak 1 od 2</span>
+            <h1>Izaberite način plaćanja</h1>
+          </div>
+
+          @if (v.methods.length === 0) {
+            <div class="alert warn">Prodavac trenutno nema aktivnih načina plaćanja. Pokušajte kasnije.</div>
+          } @else {
+            <div class="co-methods" role="radiogroup" aria-label="Način plaćanja">
+              @for (m of v.methods; track m.code; let i = $index) {
+                @let md = meta(m.code);
+                <button
+                  type="button"
+                  role="radio"
+                  class="m"
+                  [class.sel]="selected() === m.code"
+                  [attr.aria-checked]="selected() === m.code"
+                  [attr.tabindex]="selected() === m.code ? 0 : -1"
+                  [disabled]="busy()"
+                  (click)="pick(m.code)"
+                  (keydown)="keyNav($event, i)"
+                >
+                  <span class="rad" [class.on]="selected() === m.code"></span>
+                  <span class="ic mono">{{ md.abbr }}</span>
+                  <span class="m-text">
+                    <span class="m-name">{{ m.displayName }}</span>
+                    <span class="m-desc">{{ md.desc }}</span>
+                  </span>
+                  <span class="m-tags">
+                    @for (t of md.tags; track t) {
+                      <span class="tag">{{ t }}</span>
+                    }
+                  </span>
+                </button>
+              }
+            </div>
+          }
+
+          @if (error()) {
+            <div class="alert err" role="alert">{{ error() }}</div>
+          }
+
+          <p class="note" style="margin: 0; max-width: 640px">
+            Prikazani su samo načini plaćanja koje je prodavac aktivirao. Podatke kartice unosite isključivo na
+            stranici banke — Maluvufy Pay ih nikada ne vidi niti čuva.
+          </p>
+        }
+      </section>
+
+      <aside class="co-aside">
+        <div class="co-card">
+          <span class="lbl">Prodavac</span>
+          <div class="co-merchant">
+            <span class="logo" aria-hidden="true">{{ v.merchantName.charAt(0) }}</span>
+            <span style="display: flex; flex-direction: column">
+              <span style="font-weight: 600">{{ v.merchantName }}</span>
+              @if (v.merchantHost) {
+                <span style="font-size: 12px; color: var(--text-3)">{{ v.merchantHost }}</span>
+              }
+            </span>
+          </div>
+          <div class="co-amount">
+            <span class="lbl">Iznos</span>
+            <span class="mono">{{ money(v.amount, '').trim() }} <span class="cur">{{ v.currency }}</span></span>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            @if (v.description) {
+              <div class="kv"><span>Opis</span><span>{{ v.description }}</span></div>
+            }
+            <div class="kv"><span>Broj naloga</span><span class="mono" style="font-size: 13px">{{ v.merchantOrderId }}</span></div>
+            <div class="kv"><span>Transakcija</span><span class="mono" style="font-size: 13px">{{ v.reference }}</span></div>
+          </div>
+          @if (v.status === 'INIT') {
+            <button
+              type="button"
+              class="btn co-cta"
+              [disabled]="busy() || !selected() || timeUp() || v.methods.length === 0"
+              (click)="proceed()"
+            >
+              {{ busy() ? 'Preusmeravanje…' : cta() }}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg>
+            </button>
+            <button type="button" class="co-back" [disabled]="busy()" (click)="cancel()">Otkaži i vrati se prodavcu</button>
+          }
+        </div>
+      </aside>
+    }
+  </main>
+</div>

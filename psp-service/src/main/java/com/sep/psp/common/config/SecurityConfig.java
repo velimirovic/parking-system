@@ -56,7 +56,10 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/merchant/**").hasRole("MERCHANT_ADMIN")
-                        // TODO: API za merchante (API key / HMAC) i checkout dodaju vlasnici tih modula
+                        // Merchant API: API kljuc + HMAC potpis se proveravaju u MerchantApiAuthenticator
+                        .requestMatchers("/transactions", "/transactions/**").permitAll()
+                        // Checkout kupca: bez prijave, pristup vezan za nasumicni UUID transakcije
+                        .requestMatchers("/checkout/**").permitAll()
                         .anyRequest().permitAll());
         return http.build();
     }

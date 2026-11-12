@@ -1,0 +1,292 @@
+/* S01 - checkout kupca (izvor: SEP_Dizajn/psp/Checkout.dc.html) */
+
+.co {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.co-top {
+  background: var(--navy);
+  border-bottom: 1px solid var(--navy-line);
+}
+.co-top-in {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.co-secure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--navy-muted);
+}
+.co-secure .mono {
+  color: #ffffff;
+}
+
+.co-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: flex-start;
+}
+.co-left {
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.co-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- izbor metode ---------- */
+.co-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.m {
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 22px 24px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 22px 44px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+}
+.m:hover:not(:disabled) {
+  border-color: var(--navy);
+}
+.m.sel {
+  border-color: var(--navy);
+  box-shadow: inset 0 0 0 1px var(--navy);
+}
+.m:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.m:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.rad {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--line-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rad.on {
+  border-color: var(--navy);
+}
+.rad.on::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--navy);
+}
+.ic {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+}
+.m-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.m-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.m-desc {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.m-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.tag {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  padding: 3px 7px;
+  font-family: var(--mono);
+}
+
+/* ---------- rezime naloga ---------- */
+.co-aside {
+  flex: 1 1 340px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.co-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.co-merchant {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.co-merchant .logo {
+  width: 36px;
+  height: 36px;
+  background: var(--navy);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex: none;
+}
+.co-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 0;
+  border-top: 1px solid var(--navy);
+  border-bottom: 1px solid var(--line);
+}
+.co-amount .mono {
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.co-amount .cur {
+  font-size: 20px;
+}
+.co-card .kv {
+  font-size: 14px;
+  padding: 12px 0;
+}
+.co-card .kv:first-child {
+  border-top: 0;
+}
+.co-card .kv span:last-child {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.co-cta {
+  height: 56px;
+  font-size: 15px;
+  width: 100%;
+}
+.co-back {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.co-back:hover:not(:disabled) {
+  color: var(--navy);
+}
+
+/* ---------- stanje (ucitavanje, zavrseno, greska) ---------- */
+.co-state {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+.co-state h1 {
+  font-size: 26px;
+}
+.co-state p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.co-mark {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 18px;
+  color: #ffffff;
+}
+.co-mark.ok {
+  background: var(--ok);
+}
+.co-mark.bad {
+  background: var(--err);
+}
+.co-mark.wait {
+  background: var(--surface);
+  border: 2px solid var(--line-soft);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: co-spin 0.9s linear infinite;
+}
+@keyframes co-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.co-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .co-top-in,
+  .co-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .m {
+    grid-template-columns: 22px 44px minmax(0, 1fr);
+    padding: 18px 16px;
+  }
+  .m-tags {
+    grid-column: 3;
+    justify-content: flex-start;
+  }
+  .co-amount .mono {
+    font-size: 32px;
+  }
+}
