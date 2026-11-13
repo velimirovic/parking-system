@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/transactions", "/transactions/**").permitAll()
                         // Checkout kupca: bez prijave, pristup vezan za nasumicni UUID transakcije
                         .requestMatchers("/checkout/**").permitAll()
+                        // Rezultati plugin-ova: HMAC potpis deljenom tajnom plugin-ova (PluginResultController)
+                        .requestMatchers("/internal/plugins/**").permitAll()
                         .anyRequest().permitAll());
         return http.build();
     }

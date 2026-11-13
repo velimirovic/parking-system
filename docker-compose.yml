@@ -95,6 +95,23 @@ services:
       retries: 12
       start_period: 20s
 
+  # ---------- Payment plugin-ovi (zasebni servisi, sema u bazi PSP-a) ----------
+  card-plugin:
+    build: ./card-plugin
+    environment:
+      DB_URL: jdbc:postgresql://psp-db:5432/psp_db
+      DB_USERNAME: ${PSP_DB_USER}
+      DB_PASSWORD: ${PSP_DB_PASSWORD}
+      PSP_CORE_URL: http://psp-service:8082
+      PLUGIN_PUBLIC_URL: http://card-plugin:9101
+      BANK_URL: http://bank-service:8083
+      # Tajne - vrednosti posle ":-" su SAMO za lokalni razvoj (postaviti u .env)
+      PLUGIN_SHARED_SECRET: ${PSP_PLUGIN_SHARED_SECRET:-dev-only-plugin-secret-change-me-0123456789}
+      BANK_PSP_HMAC_SECRET: ${BANK_PSP_HMAC_SECRET:-dev-only-bank-psp-secret-change-me-0123456789}
+    ports: ["9101:9101"]
+    depends_on:
+      psp-db: { condition: service_healthy }
+
   bank-service:
     build: ./bank-service
     environment:
@@ -102,6 +119,12 @@ services:
       DB_USERNAME: ${BANK_DB_USER}
       DB_PASSWORD: ${BANK_DB_PASSWORD}
       CORS_ALLOWED_ORIGINS: http://localhost:4202
+      PAYMENT_PAGE_BASE_URL: ${BANK_PAYMENT_PAGE_URL:-http://localhost:4202}
+      # Tajne - vrednosti posle ":-" su SAMO za lokalni razvoj (postaviti u .env)
+      BANK_PSP_HMAC_SECRET: ${BANK_PSP_HMAC_SECRET:-dev-only-bank-psp-secret-change-me-0123456789}
+      CARD_ENCRYPTION_KEY: ${BANK_CARD_ENCRYPTION_KEY:-ZGV2LW9ubHktY2FyZC1rZXktY2hhbmdlLW1lLTMyYnk=}
+      CARD_TOKEN_KEY: ${BANK_CARD_TOKEN_KEY:-dev-only-card-token-key-change-me-0123456789}
+      DEMO_DATA_ENABLED: ${BANK_DEMO_DATA_ENABLED:-true}
     ports: ["8083:8083"]
     depends_on:
       bank-db: { condition: service_healthy }

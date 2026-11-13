@@ -1,1 +1,205 @@
-/* You can add global styles to this file, and also import other style files */
+/* SEP Banka - zajednicki stilovi (izvor: SEP_Dizajn/banka, Main.dc.html) */
+
+:root {
+  --navy: #13264a;
+  --navy-hover: #1d3460;
+  --navy-line: #2c406a;
+  --navy-muted: #bac5da;
+  --bg: #f3eee4;
+  --surface: #ffffff;
+  --surface-alt: #f7f3ea;
+  --line: #b9ae96;
+  --line-soft: #dcd2bd;
+  --line-input: #857b66;
+  --text: #13264a;
+  --text-2: #38455c;
+  --text-3: #4f5a6e;
+  --accent: #2950a8;
+  --ok: #1f6b46;
+  --ok-bg: #eaf3ee;
+  --warn: #8a5300;
+  --warn-bg: #fbf3e4;
+  --err: #a4281f;
+  --err-bg: #f9ecea;
+  --err-line: #d99a93;
+  --disabled: #9a9ea5;
+  --font: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.lbl {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: 'tnum';
+}
+
+/* ---------- okvir stranice banke ---------- */
+.bk {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.bk-top {
+  background: var(--navy);
+  border-bottom: 1px solid var(--navy-line);
+  color: #ffffff;
+}
+.bk-top-in {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.bk-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bk-logo {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.bk-sub {
+  font-size: 13px;
+  color: var(--navy-muted);
+  padding-left: 12px;
+  border-left: 1px solid var(--navy-line);
+}
+.bk-secure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--navy-muted);
+}
+.bk-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 28px 24px;
+}
+
+/* ---------- forma ---------- */
+.in {
+  height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+  font-size: 16px;
+  color: var(--text);
+  width: 100%;
+  border-radius: 0;
+}
+.in:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.in.invalid {
+  border-color: var(--err);
+}
+.in:disabled {
+  background: var(--surface-alt);
+}
+.msg {
+  font-size: 12px;
+  min-height: 16px;
+  color: var(--text-3);
+}
+.msg.ok {
+  color: var(--ok);
+}
+.msg.err {
+  color: var(--err);
+}
+
+.btn {
+  height: 48px;
+  padding: 0 20px;
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.btn:hover:not(:disabled) {
+  background: var(--navy-hover);
+}
+.btn:disabled {
+  background: var(--disabled);
+  border-color: var(--disabled);
+  cursor: default;
+}
+
+.alert {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid;
+}
+.alert.err {
+  background: var(--err-bg);
+  border-color: var(--err-line);
+  color: var(--err);
+}
+.alert.warn {
+  background: var(--warn-bg);
+  border-color: #e0c48f;
+  color: var(--warn);
+}
+
+@media (max-width: 640px) {
+  .bk-top-in {
+    padding: 0 16px;
+  }
+  .bk-main {
+    padding: 16px;
+  }
+  .bk-sub {
+    display: none;
+  }
+}

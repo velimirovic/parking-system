@@ -114,7 +114,9 @@ kao gore, tajnom klijenta, gde je `path` putanja webhook URL-a. Telo:
 
 `event`: `PAYMENT_SUCCESS`, `PAYMENT_FAILED` (i za `EXPIRED`), `PAYMENT_ERROR`. Klijent mora da proveri potpis,
 iznos i valutu, da obradu uradi idempotentno i da odgovori `2xx`. Zapis za webhook (outbox) PSP upisuje u istoj
-DB transakciji kao i status, pa se obaveštenje ne gubi. **Slanje outbox zapisa dolazi uz plaćanje karticom.**
+DB transakciji kao i status, pa se obaveštenje ne gubi. Ako klijent ne odgovori `2xx`, PSP ponavlja slanje sa
+rastućim razmakom (10 s, 20 s, 40 s… najviše 8 pokušaja). Dodatna zaglavlja: `X-Psp-Event` i `X-Psp-Delivery`
+(ID isporuke – isti pri svakom ponovnom slanju, može da služi za deduplikaciju).
 
 ## Testiranje bez parking-service-a
 
@@ -145,3 +147,25 @@ Core poziva `POST {plugin_base_url}/payments` sa zaglavljima `X-Psp-Timestamp` i
 Plugin vraća `{"status": "PENDING", "redirectUrl": "…"}`, a kupca na kraju vraća na `returnUrl`.
 Ako je odbijen, vraća `{"status": "FAILED", "message": "…"}`. Ako plugin nije dostupan ili odbije zahtev,
 transakcija ostaje `INIT` i kupac može da izabere drugu metodu.
+
+Konačan rezultat plugin javlja sa `POST /internal/plugins/{CODE}/results` (isti potpis, `path` je ta putanja):
+
+```json
+{
+  "pspTransactionId": "7c0f…",
+  "status": "SUCCESS",
+  "amount": 120.00,
+  "currency": "RSD",
+  "stan": "000042",
+  "pspTimestamp": "…",
+  "globalTransactionId": "GTX-261112-…",
+  "acquirerTimestamp": "…",
+  "responseCode": "00"
+}
+```
+
+`status`: `SUCCESS`, `FAILED`, `EXPIRED` ili `ERROR`. Core proverava da se iznos i valuta poklapaju sa
+inicijalizacijom. Ako se ne poklapaju, transakcija završava kao `ERROR`. Ponovljen rezultat se ignoriše, pa plugin
+sme da ga šalje dok ne dobije `2xx`. Putanja `/internal/**` nije dostupna kroz nginx PSP frontenda.
+
+Referentna implementacija je `card-plugin` (vidi [card-payment.md](card-payment.md)).

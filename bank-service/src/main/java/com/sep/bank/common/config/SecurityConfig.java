@@ -9,6 +9,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -26,11 +28,23 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // TODO: zameniti permitAll pravim pravilima kada se doda autentifikacija
+                .headers(h -> h
+                        .frameOptions(f -> f.deny())
+                        .cacheControl(Customizer.withDefaults()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**").permitAll()
-                        .anyRequest().permitAll());
+                        // API za PSP: HMAC potpis se proverava u PspAuthenticator
+                        .requestMatchers("/payment-requests", "/payment-requests/**").permitAll()
+                        // stranica za placanje karticom: pristup daje nasumicni PAYMENT_ID
+                        .requestMatchers("/payments/**").permitAll()
+                        // TODO: mobilna aplikacija (IPS) dodaje prijavu klijenata banke
+                        .anyRequest().denyAll());
         return http.build();
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean

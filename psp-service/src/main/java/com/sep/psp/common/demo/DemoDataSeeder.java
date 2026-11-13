@@ -95,7 +95,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 "http://localhost:4200/placanje/greska");
         subscribe(parking, methods.get("CARD"), true, Map.of("bankMerchantId", "BNK-PSP-007781"));
         subscribe(parking, methods.get("QR"), true,
-                Map.of("accountNumber", "160-0000000123456-21", "recipientName", "Maluvufy Parking d.o.o."));
+                Map.of("accountNumber", "160-0000000123456-54", "recipientName", "Maluvufy Parking d.o.o."));
         subscribe(parking, methods.get("PAYPAL"), false, Map.of("clientId", "AXd-sandbox-parking-client-91F"));
         subscribe(parking, methods.get("CRYPTO"), true,
                 Map.of("walletAddress", "tb1qparking7x9m2k4d8w3s0vq5f6n1zr2a8c3"));
@@ -255,6 +255,7 @@ public class DemoDataSeeder implements ApplicationRunner {
         d.setEventType(event);
         d.setPayload("{\"merchant_order_id\":\"" + t.getMerchantOrderId() + "\",\"status\":\"" + status + "\"}");
         d.setMaxAttempts(8);
+        d.setSimulated(true);
         int roll = random.nextInt(100);
         if (roll < 8) {
             d.setStatus(WebhookStatus.PENDING);

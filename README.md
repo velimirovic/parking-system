@@ -10,6 +10,8 @@ Sistem čine tri nezavisna sistema. Svaki ima svoj backend, frontend i bazu:
 | Payment Service Provider | `psp-service` · :8082 | `psp-frontend` · :4201 | `psp-db` · :5434 |
 | Banka (Acquirer / Issuer) | `bank-service` · :8083 | `bank-frontend` · :4202 | `bank-db` · :5435 |
 
+PSP metode plaćanja su zasebni plugin servisi: `card-plugin` · :9101 (šema `card_plugin` u `psp-db`).
+
 
 ## Tehnologije
 
@@ -81,3 +83,9 @@ python scripts/psp_merchant.py init --amount 120 --currency RSD
 ```
 
 Otvoriti `redirect_url` iz odgovora (checkout na http://localhost:4201/placanje/{id}).
+
+### Plaćanje karticom
+
+Tok, kodovi odgovora banke i test kartice su opisani u [docs/card-payment.md](docs/card-payment.md).
+Najkraća proba: `python scripts/psp_merchant.py init --amount 350`, otvoriti `redirect_url`, izabrati
+„Platna kartica" i uneti `4111 1111 1111 1111`, `12/29`, CVV `123`, ime `PETAR PETROVIC`.
