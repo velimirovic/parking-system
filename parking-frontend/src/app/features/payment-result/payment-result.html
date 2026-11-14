@@ -1,0 +1,102 @@
+<div class="screen">
+  <header class="top">
+    <div class="top-in"><app-logo /></div>
+  </header>
+
+  <main class="body">
+    <section class="panel main">
+      <div class="content">
+        @switch (view()) {
+          @case ('pending') {
+            <div class="state">
+              <div class="spinner"></div>
+              <div class="state-text">
+                <h1 class="state-title">Potvrđujemo plaćanje</h1>
+                <p class="state-lead">
+                  Čekamo konačnu potvrdu od PSP-a. Možete zatvoriti stranicu — status ćemo uskladiti automatski.
+                </p>
+                @if (redirectHint()) {
+                  <p class="state-lead hint">{{ redirectHint() }} Sesija se ne aktivira dok ne stigne konačna potvrda.</p>
+                }
+              </div>
+            </div>
+          }
+          @case ('success') {
+            <div class="state">
+              <div class="icon ok">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+              </div>
+              <div class="state-text">
+                <h1 class="state-title">Parking je aktivan do <span class="mono">{{ time(order()?.session?.endsAt) }}</span></h1>
+                <p class="state-lead">
+                  Plaćanje je potvrđeno. Obavestićemo vas {{ auth.user()?.notifyBeforeMinutes ?? 5 }} minuta pre isteka.
+                </p>
+              </div>
+            </div>
+          }
+          @case ('failed') {
+            <div class="state">
+              <div class="icon bad">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </div>
+              <div class="state-text">
+                <h1 class="state-title">Plaćanje nije uspelo</h1>
+                <p class="state-lead">Transakcija nije izvršena i ništa nije naplaćeno. Parking sesija nije aktivirana.</p>
+              </div>
+            </div>
+          }
+          @case ('error') {
+            <div class="state">
+              <div class="icon warn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" aria-hidden="true"><path d="M12 6v8M12 17.5v.5"/></svg>
+              </div>
+              <div class="state-text">
+                <h1 class="state-title">Došlo je do greške</h1>
+                <p class="state-lead">
+                  {{ loadError() ?? 'Nismo dobili ispravan odgovor servisa za plaćanje. Status proveravamo automatski; ako je iznos naplaćen a sesija ne bude aktivirana, sredstva se vraćaju.' }}
+                </p>
+              </div>
+            </div>
+          }
+        }
+
+        @if (order(); as o) {
+          <div class="kvs">
+            <div class="kv"><span>Vozilo</span><span class="mono">{{ o.session.plate }}</span></div>
+            <div class="kv"><span>Zona</span><span>{{ o.session.zoneName }}{{ o.session.locationName ? ' · ' + o.session.locationName : '' }}</span></div>
+            <div class="kv"><span>Period</span><span class="mono">{{ time(o.session.startsAt) }} – {{ time(o.session.endsAt) }}</span></div>
+            <div class="kv"><span>Iznos</span><span class="mono">{{ money(o.amount, o.currency) }}</span></div>
+            <div class="kv"><span>Način plaćanja</span><span>{{ methodLabel(o.paymentMethod) }}</span></div>
+            <div class="kv"><span>Broj naloga</span><span class="mono small">{{ o.merchantOrderId }}</span></div>
+          </div>
+        }
+
+        <div class="actions">
+          @if (view() === 'failed') {
+            <a class="btn lg-h grow" routerLink="/nova-sesija" [queryParams]="retryParams()">Pokušaj ponovo</a>
+            <a class="btn outline lg-h grow" routerLink="/pregled">Na pregled</a>
+          } @else {
+            <a class="btn lg-h grow" routerLink="/pregled">Na pregled</a>
+          }
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel flow">
+      <div class="hd">Tok potvrde</div>
+      <div class="flow-body">
+        <div class="p"><i class="done">✓</i>Nalog za plaćanje kreiran</div>
+        <div class="p">
+          <i [class.done]="view() === 'success'" [class.cur]="view() === 'pending' || view() === 'error'"
+             [class.bad]="view() === 'failed'">2</i>
+          Potvrda transakcije od PSP-a
+        </div>
+        <div class="p"><i [class.done]="view() === 'success'">3</i>Aktivacija parking sesije</div>
+        <p class="note flow-note">
+          Status sesije zavisi isključivo od potvrde koju PSP šalje sistemu, a ne od ove stranice.
+          @if (polling()) { Stranica se osvežava automatski. }
+        </p>
+      </div>
+    </aside>
+  </main>
+</div>

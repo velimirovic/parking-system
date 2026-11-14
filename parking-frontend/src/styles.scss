@@ -1,1 +1,462 @@
-/* You can add global styles to this file, and also import other style files */
+/* SEP Parking - zajednicki stilovi (izvor: SEP_Dizajn/parking P01-P08, Main.dc.html) */
+
+:root {
+  --navy: #13264a;
+  --navy-hover: #1d3460;
+  --navy-muted: #bac5da;
+  --bg: #f3eee4;
+  --surface: #ffffff;
+  --surface-alt: #f7f3ea;
+  --line: #b9ae96;
+  --line-soft: #dcd2bd;
+  --line-input: #857b66;
+  --text: #13264a;
+  --text-2: #38455c;
+  --text-3: #4f5a6e;
+  --accent: #2950a8;
+  --ok: #1f6b46;
+  --ok-bg: #eaf3ee;
+  --warn: #8a5300;
+  --warn-bg: #fbf3e4;
+  --warn-line: #d9b87a;
+  --err: #a4281f;
+  --err-bg: #f9ecea;
+  --err-line: #d99a93;
+  --info-bg: #edf0f7;
+  --info-line: #b7c3e0;
+  --neutral-bg: #e4dccb;
+  --font: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--navy);
+}
+
+button {
+  font: inherit;
+}
+
+h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+h2 {
+  margin: 0;
+}
+
+/* ---------- tipografija ---------- */
+.lbl {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: 'tnum';
+}
+.muted {
+  color: var(--text-3);
+}
+.note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-3);
+}
+.plate {
+  font-family: var(--mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- raspored ---------- */
+.page {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.page-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------- forme ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.in {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-input);
+  border-radius: 0;
+  background: var(--surface);
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+  width: 100%;
+}
+.in.lg {
+  height: 48px;
+  padding: 0 14px;
+}
+.in:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.in.invalid {
+  border-color: var(--err);
+}
+.field-error {
+  font-size: 12px;
+  color: var(--err);
+}
+select.in {
+  appearance: auto;
+}
+
+/* ---------- dugmad ---------- */
+.btn {
+  height: 44px;
+  padding: 0 22px;
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 0;
+  white-space: nowrap;
+}
+a.btn:hover {
+  color: #ffffff;
+}
+.btn:hover:not(:disabled) {
+  background: var(--navy-hover);
+}
+.btn.lg {
+  height: 52px;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  width: 100%;
+}
+.btn.outline {
+  background: var(--surface);
+  color: var(--navy);
+  border-color: var(--line-input);
+}
+a.btn.outline:hover {
+  color: var(--navy);
+}
+.btn.outline:hover:not(:disabled) {
+  background: var(--surface-alt);
+}
+.btn.warn {
+  height: 36px;
+  padding: 0 16px;
+  background: transparent;
+  border-color: var(--warn);
+  color: var(--warn);
+  font-size: 13px;
+  font-weight: 600;
+}
+.btn.warn:hover:not(:disabled) {
+  background: #f6e8cf;
+}
+.btn:disabled {
+  background: var(--neutral-bg);
+  border-color: var(--neutral-bg);
+  color: var(--text-3);
+  cursor: not-allowed;
+}
+.ib {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 0;
+}
+.ib:hover:not(:disabled) {
+  background: var(--surface-alt);
+}
+.ib:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ib.danger {
+  color: var(--err);
+  border-color: var(--err-line);
+}
+
+/* ---------- paneli ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.panel.strong {
+  border-color: var(--navy);
+}
+.hd {
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-alt);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.hd.plain {
+  background: var(--surface);
+}
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 14px;
+}
+.kv > span:first-child {
+  color: var(--text-3);
+}
+.kv > span:last-child {
+  text-align: right;
+}
+
+/* ---------- statusne oznake ---------- */
+.b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.b i {
+  width: 6px;
+  height: 6px;
+  display: block;
+}
+.b.ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.b.ok i {
+  background: var(--ok);
+}
+.b.am {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.b.am i {
+  background: var(--warn);
+}
+.b.rd {
+  background: var(--err-bg);
+  color: var(--err);
+}
+.b.rd i {
+  background: var(--err);
+}
+.b.gr {
+  background: var(--neutral-bg);
+  color: var(--text-2);
+}
+.b.gr i {
+  background: var(--text-2);
+}
+.b.bl {
+  background: var(--info-bg);
+  color: var(--accent);
+}
+.b.bl i {
+  background: var(--accent);
+}
+
+/* ---------- tabele ---------- */
+.table-wrap {
+  overflow-x: auto;
+}
+table.grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+table.grid th {
+  background: var(--surface-alt);
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.grid td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 14px;
+  white-space: nowrap;
+}
+table.grid tr:last-child td {
+  border-bottom: 0;
+}
+.num {
+  text-align: right !important;
+}
+.empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+/* ---------- poruke ---------- */
+.alert {
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.alert.err {
+  background: var(--err-bg);
+  border-color: var(--err-line);
+  color: var(--err);
+}
+.alert.ok {
+  background: var(--ok-bg);
+  border-color: #a9cbb7;
+  color: var(--ok);
+}
+.alert.warn {
+  background: var(--warn-bg);
+  border-color: var(--warn-line);
+  color: var(--warn);
+}
+.alert.info {
+  background: var(--info-bg);
+  border-color: var(--info-line);
+  color: #1d3460;
+}
+
+/* ---------- izbor (zona, vozilo, trajanje) ---------- */
+.opt {
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 44px;
+  border-radius: 0;
+}
+.opt:hover:not(:disabled) {
+  border-color: var(--navy);
+}
+.opt.sel {
+  border-color: var(--navy);
+  box-shadow: inset 0 0 0 1px var(--navy);
+  background: var(--surface-alt);
+}
+.opt:disabled {
+  color: #9a9ea5;
+  background: var(--bg);
+  cursor: not-allowed;
+  border-color: var(--line-soft);
+}
+
+.progress {
+  height: 4px;
+  background: var(--neutral-bg);
+}
+.progress > div {
+  height: 4px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border: 2px solid var(--line-soft);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 20px 16px;
+  }
+}

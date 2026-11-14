@@ -1,0 +1,115 @@
+<main class="page">
+  <div class="page-head">
+    <div class="page-title">
+      <span class="lbl">Beograd · {{ zones().length }} zone · {{ locationCount() }} lokacija</span>
+      <h1>Zone i pravila parkiranja</h1>
+    </div>
+    <label class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F5A6E" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input aria-label="Pretraga zona" placeholder="Pretraži zonu ili ulicu" [value]="query()"
+             (input)="query.set($any($event.target).value)" />
+    </label>
+  </div>
+
+  @if (error()) {
+    <div class="alert err" role="alert">{{ error() }}</div>
+  }
+
+  <div class="layout">
+    <nav aria-label="Zone" class="panel zone-list">
+      <div class="hd">Zone</div>
+      @for (z of filtered(); track z.id) {
+        <button type="button" class="z" [class.sel]="z.id === selected()?.id" (click)="select(z)">
+          <span class="z-row">
+            <span class="z-name">{{ z.name }}</span>
+            <span class="mono z-rate">{{ rate(z.baseRatePerHour, z.currency) }}</span>
+          </span>
+          <span class="z-area">{{ z.area }}</span>
+        </button>
+      } @empty {
+        <div class="empty">{{ loading() ? 'Učitavanje…' : 'Nema zona za zadatu pretragu.' }}</div>
+      }
+    </nav>
+
+    @if (selected(); as z) {
+      <section class="detail">
+        <div class="panel head-card">
+          <div class="head-text">
+            <span class="head-row">
+              <h2 class="zone-title">{{ z.name }}</h2>
+              @if (!z.active) {
+                <span class="b rd"><i></i>Neaktivna</span>
+              } @else if (z.chargingNow) {
+                <span class="b ok"><i></i>Naplata u toku</span>
+              } @else {
+                <span class="b gr"><i></i>Trenutno bez naplate</span>
+              }
+            </span>
+            <span class="head-sub">{{ z.area }}{{ coords(z) }}</span>
+          </div>
+          <a class="btn" routerLink="/nova-sesija" [queryParams]="{ zona: z.id }">Parkiraj u ovoj zoni</a>
+        </div>
+
+        <div class="rules">
+          <div class="rule"><span class="lbl">Min. trajanje</span><span class="mono rule-v">{{ z.minDurationMinutes }} min</span></div>
+          <div class="rule"><span class="lbl">Max. trajanje</span><span class="mono rule-v">{{ z.maxDurationMinutes }} min</span></div>
+          <div class="rule"><span class="lbl">Produženja</span><span class="mono rule-v">{{ extensions(z) }}</span></div>
+          <div class="rule"><span class="lbl">Ukupno max.</span><span class="mono rule-v">{{ z.maxTotalMinutes ? z.maxTotalMinutes + ' min' : '—' }}</span></div>
+        </div>
+
+        <div class="tables">
+          <div class="panel table-wrap">
+            <div class="hd plain">Cenovnik i radno vreme naplate</div>
+            <table class="grid">
+              <thead><tr><th>Dani</th><th>Naplata</th><th class="num">Cena / h</th></tr></thead>
+              <tbody>
+                @for (t of z.tariffs; track $index) {
+                  <tr>
+                    <td>{{ t.label }}</td>
+                    <td class="mono">{{ t.from }} – {{ t.to }}</td>
+                    <td class="mono num">{{ money(t.pricePerHour, z.currency) }}</td>
+                  </tr>
+                }
+                @if (freeDays()) {
+                  <tr>
+                    <td>{{ freeDays() }}</td>
+                    <td class="muted">Bez naplate</td>
+                    <td class="mono num muted">—</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="panel table-wrap">
+            <div class="hd plain">Lokacije</div>
+            <table class="grid">
+              <thead><tr><th>Lokacija</th><th class="num">Mesta</th></tr></thead>
+              <tbody>
+                @for (l of z.locations; track l.id) {
+                  <tr>
+                    <td>{{ l.name }}</td>
+                    <td class="mono num">{{ l.capacity ?? '—' }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="2" class="empty">Nema definisanih lokacija.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert info">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2950A8" stroke-width="1.8" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+          <span>
+            Sesija ne može trajati van radnog vremena naplate.
+            @if (z.extensionAllowed) {
+              Produženje je moguće dok je sesija aktivna{{ z.maxTotalMinutes ? ' i ukupno trajanje ne pređe ' + z.maxTotalMinutes + ' min' : '' }}.
+            } @else {
+              Produženje sesije u ovoj zoni nije dozvoljeno.
+            }
+          </span>
+        </div>
+      </section>
+    }
+  </div>
+</main>

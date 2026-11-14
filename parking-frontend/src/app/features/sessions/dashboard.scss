@@ -1,0 +1,110 @@
+.expiring {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+}
+.expiring-text {
+  flex: 1 1 360px;
+  font-size: 14px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.expiring-text strong {
+  font-weight: 600;
+}
+.muted-2 {
+  color: var(--text-2);
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.card.strong {
+  border-color: var(--navy);
+}
+.card.dashed {
+  border: 1px dashed var(--line-input);
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.veh {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.veh-plate {
+  font-size: 18px;
+}
+.veh-label {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.big {
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.pending-text {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.kvs {
+  display: flex;
+  flex-direction: column;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+.grow {
+  flex: 1;
+}
+.empty-card {
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 200px;
+}
+.empty-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-2);
+  max-width: 420px;
+}
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.hd.plain {
+  padding: 12px 16px;
+}
+.more {
+  font-size: 13px;
+  font-weight: 500;
+}

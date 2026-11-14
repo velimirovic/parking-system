@@ -1,0 +1,144 @@
+<main class="page">
+  <div class="page-head">
+    <div class="page-title">
+      <span class="lbl">{{ today }}</span>
+      <h1>{{ hello }}, {{ auth.user()?.firstName }}</h1>
+    </div>
+    <a class="btn" routerLink="/nova-sesija">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Nova parking sesija
+    </a>
+  </div>
+
+  @if (error()) {
+    <div class="alert err" role="alert">{{ error() }}</div>
+  }
+
+  @if (expiring(); as c) {
+    <div class="expiring" role="status">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A5300" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <div class="expiring-text">
+        <strong>Parking ističe za {{ minutesLeft(c.remainingMs) }}.</strong>
+        <span class="muted-2">{{ c.session.plate }} · {{ c.session.zoneName }} · kraj u {{ time(c.session.endsAt) }}</span>
+      </div>
+      @if (c.session.extensionAllowed) {
+        <button type="button" class="btn warn" disabled title="Produženje sesije biće dostupno uskoro">Produži parking</button>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="panel empty">Učitavanje…</div>
+  } @else {
+    <section class="cards">
+      @for (c of cards(); track c.session.id) {
+        @let s = c.session;
+        @if (s.status === 'ACTIVE') {
+          <article class="card" [class.strong]="c.expiringSoon">
+            <div class="card-head">
+              <div class="veh">
+                <span class="plate veh-plate">{{ s.plate }}</span>
+                <span class="veh-label">{{ s.vehicleLabel || '—' }}</span>
+              </div>
+              @if (c.expiringSoon) {
+                <span class="b am"><i></i>Uskoro ističe</span>
+              } @else {
+                <span class="b ok"><i></i>Aktivna</span>
+              }
+            </div>
+            <div class="block">
+              <span class="lbl">Preostalo vreme</span>
+              <span class="mono big">{{ countdown(c.remainingMs) }}</span>
+              <div class="progress">
+                <div [style.width.%]="c.pct" [style.background]="c.expiringSoon ? 'var(--warn)' : 'var(--ok)'"></div>
+              </div>
+            </div>
+            <div class="kvs">
+              <div class="kv"><span>Zona</span><span>{{ s.zoneName }}</span></div>
+              <div class="kv"><span>Period</span><span class="mono">{{ time(s.startsAt) }} – {{ time(s.endsAt) }}</span></div>
+              <div class="kv">
+                <span>Produženja</span>
+                <span [class.mono]="s.extensionAllowed" [class.muted]="!s.extensionAllowed">{{ extensionsLabel(s) }}</span>
+              </div>
+            </div>
+            <div class="actions">
+              @if (s.extensionAllowed) {
+                <button type="button" class="btn grow" disabled title="Produženje sesije biće dostupno uskoro">Produži</button>
+                <a class="btn outline grow" routerLink="/istorija">Detalji</a>
+              } @else {
+                <button type="button" class="btn grow" disabled>Produženje zabranjeno u zoni</button>
+              }
+            </div>
+          </article>
+        } @else {
+          <article class="card dashed">
+            <div class="card-head">
+              <div class="veh">
+                <span class="plate veh-plate">{{ s.plate }}</span>
+                <span class="veh-label">{{ s.vehicleLabel || '—' }}</span>
+              </div>
+              <span class="b am"><i></i>Čeka plaćanje</span>
+            </div>
+            <div class="block">
+              <span class="lbl">Status plaćanja</span>
+              <span class="pending-text">
+                {{ c.paymentOpen ? 'Plaćanje je u toku na stranici PSP-a' : 'Proveravamo konačan status kod PSP-a' }}
+              </span>
+              <div class="progress"><div style="width: 35%; background: var(--accent)"></div></div>
+            </div>
+            <div class="kvs">
+              <div class="kv"><span>Zona</span><span>{{ s.zoneName }}</span></div>
+              <div class="kv"><span>Iznos</span><span class="mono">{{ money(s.amount, s.currency) }}</span></div>
+              <div class="kv">
+                <span>Rezervacija do</span>
+                <span class="mono">{{ time(s.lastPayment?.paymentExpiresAt) }}</span>
+              </div>
+            </div>
+            <div class="actions">
+              @if (c.paymentOpen) {
+                <button type="button" class="btn grow" (click)="continuePayment(s)">Nastavi plaćanje</button>
+              }
+              <a class="btn outline grow" routerLink="/placanje/status"
+                 [queryParams]="{ merchant_order_id: s.lastPayment?.merchantOrderId }">Prikaži status</a>
+            </div>
+          </article>
+        }
+      } @empty {
+        <article class="card dashed empty-card">
+          <span class="lbl">Nema aktivnih sesija</span>
+          <p class="empty-text">Pokrenite parking sesiju izborom zone, vozila i trajanja. Cena se računa pre plaćanja.</p>
+          <a class="btn" routerLink="/nova-sesija">Nova parking sesija</a>
+        </article>
+      }
+    </section>
+  }
+
+  <section class="panel">
+    <div class="hd plain">
+      <h2 class="section-title">Poslednja plaćanja</h2>
+      <a routerLink="/istorija" class="more">Cela istorija →</a>
+    </div>
+    <div class="table-wrap">
+      <table class="grid">
+        <thead>
+          <tr><th>Datum</th><th>Vozilo</th><th>Zona</th><th>Svrha</th><th>Način</th><th class="num">Iznos</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          @for (p of payments(); track p.merchantOrderId) {
+            <tr>
+              <td class="mono">{{ shortDateTime(p.createdAt) }}</td>
+              <td class="mono">{{ p.plate }}</td>
+              <td>{{ p.zoneName }}</td>
+              <td>{{ PURPOSE_LABEL[p.purpose] }}</td>
+              <td>{{ methodLabel(p.paymentMethod) }}</td>
+              <td class="mono num">{{ money(p.amount, p.currency) }}</td>
+              <td><span class="b {{ PAYMENT_STATUS[p.status].cls }}"><i></i>{{ PAYMENT_STATUS[p.status].label }}</span></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="empty">Još nema plaćanja.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

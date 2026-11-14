@@ -1,0 +1,123 @@
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.f {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+}
+.f select {
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  background: transparent;
+  color: var(--text);
+}
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.sum {
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sum + .sum {
+  border-left: 1px solid var(--line);
+}
+.sum-v {
+  font-size: 22px;
+  font-weight: 500;
+}
+tr.open td {
+  background: var(--surface-alt);
+}
+.muted-2 {
+  color: var(--text-2);
+}
+.tg {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail-row td {
+  padding: 0;
+  white-space: normal;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--line);
+}
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 32px;
+  padding: 4px 16px 16px;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tx {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) 110px 110px;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+  align-items: center;
+}
+.end {
+  justify-self: end;
+}
+.tl {
+  display: grid;
+  grid-template-columns: 70px 10px minmax(0, 1fr);
+  gap: 12px;
+  font-size: 13px;
+  align-items: center;
+}
+.dot {
+  width: 9px;
+  height: 9px;
+}
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-alt);
+  font-size: 13px;
+  color: var(--text-3);
+}
+.pager-btns {
+  display: flex;
+  gap: 8px;
+}
+.ib.dark:not(:disabled) {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #ffffff;
+}
+@media (max-width: 900px) {
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

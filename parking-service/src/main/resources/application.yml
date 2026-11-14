@@ -1,17 +1,23 @@
 server:
   port: ${SERVER_PORT:8081}
+  # nginx frontenda prosledjuje X-Forwarded-* zaglavlja
+  forward-headers-strategy: framework
 
 spring:
   application:
     name: parking-service
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5432}/parking_db}
+    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5433}/parking_db}
     username: ${DB_USERNAME:sep}
     password: ${DB_PASSWORD:sep}
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -32,3 +38,24 @@ management:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+  security:
+    # HMAC kljuc za JWT korisnika (min. 32 bajta). Vrednost ispod je SAMO za lokalni razvoj.
+    jwt-secret: ${JWT_SECRET:dev-only-parking-jwt-secret-change-me-0123456789}
+    access-token-minutes: ${ACCESS_TOKEN_MINUTES:60}
+    # zakljucavanje naloga posle 5 neuspesnih prijava na 15 min
+    max-failed-attempts: 5
+    lock-minutes: 15
+
+  psp:
+    # PSP merchant API (docs/psp-merchant-api.md). Podrazumevano: demo parking klijent iz demo podataka PSP-a.
+    base-url: ${PSP_URL:http://localhost:8082}
+    merchant-id: ${PSP_MERCHANT_ID:MRC-00042}
+    api-key: ${PSP_API_KEY:sk_test_parking_demo_0000000000000000}
+    signing-secret: ${PSP_SIGNING_SECRET:whsec_parking_demo_00000000000000000}
+    connect-timeout-ms: 3000
+    read-timeout-ms: 10000
+
+  sessions:
+    # koliko cesto se aktivne sesije kojima je proslo vreme oznacavaju kao istekle
+    expiry-check-millis: 30000

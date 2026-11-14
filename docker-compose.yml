@@ -63,6 +63,13 @@ services:
       DB_USERNAME: ${PARKING_DB_USER}
       DB_PASSWORD: ${PARKING_DB_PASSWORD}
       CORS_ALLOWED_ORIGINS: http://localhost:4200
+      # Tajne - vrednosti posle ":-" su SAMO za lokalni razvoj (postaviti u .env)
+      JWT_SECRET: ${PARKING_JWT_SECRET:-dev-only-parking-jwt-secret-change-me-0123456789}
+      # Parking sistem kao klijent PSP-a (podrazumevano demo parking klijent MRC-00042 iz demo podataka PSP-a)
+      PSP_URL: http://psp-service:8082
+      PSP_MERCHANT_ID: ${PARKING_PSP_MERCHANT_ID:-MRC-00042}
+      PSP_API_KEY: ${PARKING_PSP_API_KEY:-sk_test_parking_demo_0000000000000000}
+      PSP_SIGNING_SECRET: ${PARKING_PSP_SIGNING_SECRET:-whsec_parking_demo_00000000000000000}
     ports: ["8081:8081"]
     depends_on:
       parking-db: { condition: service_healthy }

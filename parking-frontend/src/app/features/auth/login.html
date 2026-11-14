@@ -1,0 +1,105 @@
+<div class="wrap">
+  <section class="hero">
+    <app-logo [dark]="true" />
+    <div class="hero-text">
+      <span class="lbl">Online parking</span>
+      <h1 class="hero-title">Parking plaćen za nekoliko sekundi.</h1>
+      <p class="hero-lead">
+        Izaberite zonu, vozilo i trajanje. Cena se računa unapred, a sesija se aktivira tek po potvrdi plaćanja.
+      </p>
+    </div>
+    <div class="facts">
+      <div class="fact"><span class="mono fact-v">4</span><span class="fact-l">načina plaćanja</span></div>
+      <div class="fact"><span class="mono fact-v">5 min</span><span class="fact-l">obaveštenje pre isteka</span></div>
+      <div class="fact"><span class="mono fact-v">TLS 1.2+</span><span class="fact-l">zaštićena veza</span></div>
+    </div>
+  </section>
+
+  <section class="side">
+    <div class="box">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" class="tab" [class.on]="mode() === 'prijava'"
+                [attr.aria-selected]="mode() === 'prijava'" (click)="setMode('prijava')">Prijava</button>
+        <button type="button" role="tab" class="tab" [class.on]="mode() === 'registracija'"
+                [attr.aria-selected]="mode() === 'registracija'" (click)="setMode('registracija')">Registracija</button>
+      </div>
+
+      @if (razlog() === 'expired' && !error()) {
+        <div class="alert info">Sesija je istekla. Prijavite se ponovo.</div>
+      }
+      @if (error()) {
+        <div class="alert err" role="alert">{{ error() }}</div>
+      }
+
+      @if (mode() === 'prijava') {
+        <form class="form" (ngSubmit)="login()" novalidate>
+          <div class="form-head">
+            <h2 class="form-title">Dobro došli nazad</h2>
+            <p class="form-sub">Prijavite se da biste upravljali parking sesijama.</p>
+          </div>
+          <label class="field">
+            <span class="lbl">E-pošta</span>
+            <input class="in lg" type="email" name="email" autocomplete="username" required
+                   [(ngModel)]="email" />
+          </label>
+          <label class="field">
+            <span class="lbl">Lozinka</span>
+            <input class="in lg" type="password" name="password" autocomplete="current-password" required
+                   [(ngModel)]="password" />
+          </label>
+          <button type="submit" class="btn lg" [disabled]="busy()">
+            {{ busy() ? 'Prijavljivanje…' : 'Prijavi se' }}
+          </button>
+          <p class="note">Posle 5 neuspešnih pokušaja nalog se privremeno zaključava na 15 minuta.</p>
+        </form>
+      } @else {
+        <form class="form" (ngSubmit)="register()" novalidate>
+          <div class="form-head">
+            <h2 class="form-title">Novi nalog</h2>
+            <p class="form-sub">Vozila možete dodati odmah nakon registracije.</p>
+          </div>
+          <div class="two">
+            <label class="field">
+              <span class="lbl">Ime</span>
+              <input class="in lg" name="firstName" autocomplete="given-name" required
+                     [class.invalid]="fieldErrors()['firstName']" [(ngModel)]="reg.firstName" />
+              @if (fieldErrors()['firstName']; as msg) { <span class="field-error">{{ msg }}</span> }
+            </label>
+            <label class="field">
+              <span class="lbl">Prezime</span>
+              <input class="in lg" name="lastName" autocomplete="family-name" required
+                     [class.invalid]="fieldErrors()['lastName']" [(ngModel)]="reg.lastName" />
+              @if (fieldErrors()['lastName']; as msg) { <span class="field-error">{{ msg }}</span> }
+            </label>
+          </div>
+          <label class="field">
+            <span class="lbl">E-pošta</span>
+            <input class="in lg" type="email" name="regEmail" autocomplete="email" required
+                   [class.invalid]="fieldErrors()['email']" [(ngModel)]="reg.email" />
+            @if (fieldErrors()['email']; as msg) { <span class="field-error">{{ msg }}</span> }
+          </label>
+          <label class="field">
+            <span class="lbl">Telefon</span>
+            <input class="in lg" type="tel" name="phone" autocomplete="tel" placeholder="+381 64 123 4567"
+                   [class.invalid]="fieldErrors()['phone']" [(ngModel)]="reg.phone" />
+            @if (fieldErrors()['phone']; as msg) { <span class="field-error">{{ msg }}</span> }
+          </label>
+          <label class="field">
+            <span class="lbl">Lozinka</span>
+            <input class="in lg" type="password" name="regPassword" autocomplete="new-password" required
+                   [ngModel]="regPassword()" (ngModelChange)="regPassword.set($event)" />
+          </label>
+          <div class="meter" aria-hidden="true">
+            @for (ok of strength(); track $index) {
+              <span [class.ok]="ok"></span>
+            }
+          </div>
+          <span class="note meter-note">Najmanje 12 karaktera, veliko slovo, broj i simbol.</span>
+          <button type="submit" class="btn lg" [disabled]="busy()">
+            {{ busy() ? 'Kreiranje naloga…' : 'Kreiraj nalog' }}
+          </button>
+        </form>
+      }
+    </div>
+  </section>
+</div>
