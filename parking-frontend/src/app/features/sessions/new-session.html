@@ -1,0 +1,150 @@
+<main class="page row">
+  <div class="main-col">
+    <div class="page-title">
+      <span class="lbl">Nova parking sesija</span>
+      <h1>Gde i koliko parkirate?</h1>
+    </div>
+
+    @if (loadError()) {
+      <div class="alert err" role="alert">{{ loadError() }}</div>
+    }
+
+    <section class="step-sec">
+      <div class="step"><b>01</b><h2 class="step-title">Zona</h2></div>
+      <div class="grid4">
+        @for (z of zones(); track z.id) {
+          <button type="button" class="opt" [class.sel]="z.id === zoneId()" (click)="pickZone(z)">
+            <span class="opt-title">{{ z.name }}</span>
+            <span class="mono opt-rate">{{ zoneRate(z) }}</span>
+            <span class="opt-sub">{{ z.area }}</span>
+            <span class="opt-meta">{{ zoneRules(z) }}</span>
+            @if (!z.chargingNow) {
+              <span class="opt-meta warn-text">Trenutno bez naplate</span>
+            }
+          </button>
+        } @empty {
+          @if (!loading()) { <div class="panel empty">Nema dostupnih zona.</div> }
+        }
+      </div>
+      @if (zone(); as z) {
+        @if (z.locations.length) {
+          <label class="loc">
+            <span class="lbl">Lokacija (opciono)</span>
+            <select class="in" [ngModel]="locationId() ?? ''" (ngModelChange)="pickLocation($event)">
+              <option value="">Bilo gde u zoni</option>
+              @for (l of z.locations; track l.id) {
+                <option [value]="l.id">{{ l.name }}{{ l.address ? ' — ' + l.address : '' }}</option>
+              }
+            </select>
+          </label>
+        }
+      }
+    </section>
+
+    <section class="step-sec">
+      <div class="step">
+        <b>02</b><h2 class="step-title">Vozilo</h2>
+        <a routerLink="/vozila" class="step-link">+ Dodaj vozilo</a>
+      </div>
+      <div class="grid3">
+        @for (v of vehicles(); track v.id) {
+          <button type="button" class="opt" [class.sel]="v.id === vehicleId()" (click)="pickVehicle(v)">
+            <span class="plate veh-plate">{{ v.plate }}</span>
+            <span class="opt-sub">{{ v.label || '—' }}</span>
+          </button>
+        } @empty {
+          @if (!loading()) {
+            <div class="panel empty span-all">
+              Nemate sačuvanih vozila. <a routerLink="/vozila">Dodajte vozilo</a> da biste pokrenuli sesiju.
+            </div>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="step-sec">
+      <div class="step">
+        <b>03</b><h2 class="step-title">Trajanje</h2>
+        @if (zone(); as z) {
+          <span class="step-hint">
+            min {{ z.minDurationMinutes }} min
+            @if (quote(); as q) { · trenutno najviše {{ q.maxAvailableMinutes }} min }
+          </span>
+        }
+      </div>
+      <div class="grid-dur">
+        @for (d of durations(); track d.minutes) {
+          <button type="button" class="opt dur" [class.sel]="d.minutes === duration()" [disabled]="!d.available"
+                  (click)="pickDuration(d.minutes)">
+            <span class="mono dur-label">{{ durationLabel(d.minutes) }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  </div>
+
+  <aside class="summary">
+    <div class="summary-head">
+      <span class="lbl light">Obračun</span>
+      <span class="mono light small">{{ quoting() ? 'računam…' : 'novi nalog' }}</span>
+    </div>
+    <div class="summary-body">
+      <div class="total">
+        <span class="mono total-v">{{ quote()?.amount != null ? money(quote()!.amount, quote()!.currency) : '—' }}</span>
+        <span class="total-l">Ukupno za plaćanje, PDV uključen</span>
+      </div>
+      <div class="kvs">
+        <div class="kv"><span>Zona</span><span>{{ zone()?.name ?? '—' }}</span></div>
+        <div class="kv"><span>Vozilo</span><span class="mono">{{ vehicle()?.plate ?? '—' }}</span></div>
+        <div class="kv"><span>Tarifa</span><span class="mono">{{ quote()?.ratePerHour != null ? money(quote()!.ratePerHour, quote()!.currency) + ' / h' : '—' }}</span></div>
+        <div class="kv">
+          <span>Period</span>
+          <span class="mono">{{ quote() ? time(quote()!.startsAt) + ' – ' + time(quote()!.endsAt) : '—' }}</span>
+        </div>
+      </div>
+
+      @if (quote(); as q) {
+        <div class="checks">
+          @for (c of q.checks; track c.code) {
+            <div class="check" [class.fail]="c.state === 'FAIL'">
+              <span class="check-row">
+                @switch (checkIcon(c.state)) {
+                  @case ('ok') {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B46" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+                  }
+                  @case ('fail') {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A4281F" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                  }
+                  @default {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#857B66" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>
+                  }
+                }
+                {{ c.label }}
+              </span>
+              @if (c.state === 'FAIL' && c.message) {
+                <span class="check-msg">{{ c.message }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (submitError()) {
+        <div class="alert err" role="alert">
+          <span>{{ submitError() }}</span>
+          @if (canRetry()) {
+            <button type="button" class="ib" (click)="pay()">Pokušaj ponovo</button>
+          }
+        </div>
+      }
+
+      <button type="button" class="btn lg pay" [disabled]="!canPay()" (click)="pay()">
+        <span>{{ submitting() ? 'Preusmeravanje na plaćanje…' : 'Nastavi na plaćanje' }}</span>
+        <span class="mono">{{ quote()?.amount != null ? money(quote()!.amount, quote()!.currency) : '' }}</span>
+      </button>
+      <p class="note">
+        Prikazani iznos je tačno iznos koji se šalje na plaćanje. Sesija se aktivira tek po potvrdi plaćanja.
+      </p>
+    </div>
+  </aside>
+</main>

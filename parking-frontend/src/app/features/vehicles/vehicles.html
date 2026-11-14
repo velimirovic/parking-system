@@ -1,0 +1,114 @@
+<main class="page">
+  <div class="page-title">
+    <span class="lbl">Podešavanja naloga</span>
+    <h1>Vozila i obaveštenja</h1>
+  </div>
+
+  @if (dobrodosli() && !vehicles().length && !loading()) {
+    <div class="alert ok">Nalog je kreiran. Dodajte vozilo da biste pokrenuli prvu parking sesiju.</div>
+  }
+  @if (error()) {
+    <div class="alert err" role="alert">{{ error() }}</div>
+  }
+  @if (info()) {
+    <div class="alert ok" role="status">
+      <span>{{ info() }}</span>
+      @if (vehicles().length) { <a routerLink="/nova-sesija">Nova parking sesija →</a> }
+    </div>
+  }
+
+  <div class="layout">
+    <div class="main-col">
+      <section class="panel">
+        <div class="hd"><span>Moja vozila</span><span class="mono count">{{ vehicles().length }}</span></div>
+        @for (v of vehicles(); track v.id; let first = $first) {
+          <div class="veh" [class.first]="first" [class.editing]="editingId() === v.id">
+            <span class="plate veh-plate">{{ v.plate }}</span>
+            <span class="veh-label">{{ v.label || '—' }}{{ v.isDefault ? ' · podrazumevano' : '' }}</span>
+            <span class="veh-actions">
+              <button type="button" class="ib" (click)="edit(v)" [disabled]="busy()">Izmeni</button>
+              <button type="button" class="ib danger" (click)="remove(v)" [disabled]="busy()">Ukloni</button>
+            </span>
+          </div>
+        } @empty {
+          <div class="empty">{{ loading() ? 'Učitavanje…' : 'Još nemate sačuvanih vozila.' }}</div>
+        }
+      </section>
+
+      <form class="panel" (ngSubmit)="save()" novalidate>
+        <div class="hd">
+          <span>{{ editingId() ? 'Izmena vozila' : 'Dodaj vozilo' }}</span>
+          @if (editingId()) {
+            <button type="button" class="link" (click)="cancelEdit()">Otkaži izmenu</button>
+          }
+        </div>
+        <div class="form-body">
+          <div class="grid3">
+            <label class="field">
+              <span class="lbl">Registarska oznaka</span>
+              <input class="in mono" name="plate" placeholder="BG 000-AA" maxlength="20" autocomplete="off"
+                     [class.invalid]="fieldErrors()['plate']"
+                     [ngModel]="form().plate" (ngModelChange)="update({ plate: $event })" />
+              @if (fieldErrors()['plate']; as msg) { <span class="field-error">{{ msg }}</span> }
+            </label>
+            <label class="field">
+              <span class="lbl">Marka</span>
+              <input class="in" name="brand" placeholder="npr. Renault" maxlength="40"
+                     [ngModel]="form().brand" (ngModelChange)="update({ brand: $event })" />
+            </label>
+            <label class="field">
+              <span class="lbl">Model</span>
+              <input class="in" name="model" placeholder="npr. Clio" maxlength="40"
+                     [ngModel]="form().model" (ngModelChange)="update({ model: $event })" />
+            </label>
+          </div>
+          <label class="cb">
+            <input type="checkbox" name="makeDefault" [ngModel]="form().makeDefault"
+                   (ngModelChange)="update({ makeDefault: $event })" />
+            Podrazumevano vozilo pri pokretanju sesije
+          </label>
+          <div class="form-foot">
+            <span class="note">Uklonjeno vozilo ostaje vidljivo u istoriji parkiranja.</span>
+            <button type="submit" class="btn" [disabled]="busy()">
+              {{ editingId() ? 'Sačuvaj izmene' : 'Sačuvaj vozilo' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="side-col">
+      <section class="panel">
+        <div class="hd"><span>Obaveštenja</span></div>
+        <div class="notify">
+          <span class="lbl">Obavesti me pre isteka</span>
+          <div class="chips" role="radiogroup" aria-label="Vreme obaveštenja pre isteka">
+            @for (m of notifyOptions; track m) {
+              <button type="button" class="chip" role="radio"
+                      [class.on]="auth.user()?.notifyBeforeMinutes === m"
+                      [attr.aria-checked]="auth.user()?.notifyBeforeMinutes === m"
+                      [disabled]="savingNotify()" (click)="setNotify(m)">{{ m }} min</button>
+            }
+          </div>
+          <p class="note">Podrazumevano 5 minuta. Pregled ističe sesije kojima je ostalo manje od izabranog vremena.</p>
+        </div>
+      </section>
+
+      <section class="preview-sec">
+        <span class="lbl">Pregled obaveštenja</span>
+        <div class="preview">
+          <div class="preview-top">
+            <span class="preview-brand"><span class="preview-mark">P</span>SEP Parking</span>
+            <span class="mono muted small">sada</span>
+          </div>
+          <div class="preview-text">
+            <span class="preview-title">Parking ističe za {{ auth.user()?.notifyBeforeMinutes ?? 5 }} minuta</span>
+            <span class="preview-sub">
+              <span class="mono">{{ vehicles()[0]?.plate ?? 'BG 123-AB' }}</span> · Zona 1 — Crvena
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>

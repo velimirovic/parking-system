@@ -1,0 +1,129 @@
+<main class="page">
+  <div class="page-head">
+    <div class="page-title">
+      <span class="lbl">Sesije i plaćanja</span>
+      <h1>Istorija</h1>
+    </div>
+    <div class="filters">
+      <label class="f">
+        <span class="lbl">Period</span>
+        <select [ngModel]="filter().month" (ngModelChange)="setFilter({ month: $event })">
+          @for (m of months; track m) {
+            <option [value]="m">{{ monthLabel(m) }}</option>
+          }
+        </select>
+      </label>
+      <label class="f">
+        <span class="lbl">Vozilo</span>
+        <select [ngModel]="filter().vehicleId" (ngModelChange)="setFilter({ vehicleId: $event })">
+          <option [ngValue]="null">Sva vozila</option>
+          @for (v of vehicles(); track v.id) {
+            <option [ngValue]="v.id">{{ v.plate }}</option>
+          }
+        </select>
+      </label>
+      <label class="f">
+        <span class="lbl">Status</span>
+        <select [ngModel]="filter().status" (ngModelChange)="setFilter({ status: $event })">
+          @for (s of statuses; track s.label) {
+            <option [ngValue]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert err" role="alert">{{ error() }}</div>
+  }
+
+  @if (data(); as d) {
+    <div class="summary">
+      <div class="sum"><span class="lbl">Potrošeno</span><span class="mono sum-v">{{ money(d.summary.spent, d.summary.currency) }}</span></div>
+      <div class="sum"><span class="lbl">Sesija</span><span class="mono sum-v">{{ d.summary.sessions }}</span></div>
+      <div class="sum"><span class="lbl">Produženja</span><span class="mono sum-v">{{ d.summary.extensions }}</span></div>
+      <div class="sum"><span class="lbl">Refundirano</span><span class="mono sum-v">{{ money(d.summary.refunded, d.summary.currency) }}</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table class="grid">
+          <thead>
+            <tr><th>Datum</th><th>Vozilo</th><th>Zona</th><th>Period</th><th class="num">Iznos</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (s of d.items; track s.id) {
+              @let open = expanded() === s.id;
+              <tr [class.open]="open">
+                <td class="mono">{{ date(s.createdAt) }}</td>
+                <td class="mono">{{ s.plate }}</td>
+                <td>{{ s.zoneName }}</td>
+                <td [class.mono]="s.status === 'ACTIVE' || s.status === 'EXPIRED'"
+                    [class.muted-2]="s.status === 'CANCELLED' || s.status === 'PENDING_PAYMENT'">{{ periodText(s) }}</td>
+                <td class="mono num">{{ money(s.amount, s.currency) }}</td>
+                <td><span class="b {{ SESSION_STATUS[s.status].cls }}"><i></i>{{ SESSION_STATUS[s.status].label }}</span></td>
+                <td class="num">
+                  <button type="button" class="tg" [attr.aria-expanded]="open"
+                          [attr.aria-label]="open ? 'Sakrij detalje' : 'Prikaži detalje'" (click)="toggle(s.id)">
+                    @if (open) {
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#13264A" stroke-width="2" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+                    } @else {
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#13264A" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                    }
+                  </button>
+                </td>
+              </tr>
+              @if (open) {
+                <tr class="detail-row">
+                  <td colspan="7">
+                    <div class="detail">
+                      <div class="col">
+                        <span class="lbl">Transakcije</span>
+                        @for (p of s.payments ?? []; track p.id) {
+                          <div class="tx">
+                            <span>{{ PURPOSE_LABEL[p.purpose] }}</span>
+                            <span class="muted-2">
+                              {{ methodLabel(p.paymentMethod) }} ·
+                              <span class="mono">{{ p.globalTransactionId ?? p.merchantOrderId }}</span>
+                            </span>
+                            <span class="mono num">{{ money(p.amount, p.currency) }}</span>
+                            <span class="b {{ PAYMENT_STATUS[p.status].cls }} end"><i></i>{{ PAYMENT_STATUS[p.status].label }}</span>
+                          </div>
+                        } @empty {
+                          <span class="muted">Nema transakcija.</span>
+                        }
+                      </div>
+                      <div class="col">
+                        <span class="lbl">Trag promena statusa</span>
+                        @for (e of s.statusLog ?? []; track $index) {
+                          <div class="tl">
+                            <span class="mono muted">{{ timeSec(e.occurredAt) }}</span>
+                            <span class="dot" [style.background]="eventColor(e)"></span>
+                            <span>{{ eventLabel(e) }} <span class="muted">· {{ actorLabel(e) }}</span></span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr><td colspan="7" class="empty">{{ loading() ? 'Učitavanje…' : 'Nema sesija za izabrani period.' }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span>Prikazano {{ d.items.length }} od {{ d.totalItems }}</span>
+        <div class="pager-btns">
+          <button type="button" class="ib" [disabled]="d.page === 0 || loading()"
+                  (click)="setFilter({ page: d.page - 1 })">Prethodna</button>
+          <button type="button" class="ib dark" [disabled]="d.page + 1 >= d.totalPages || loading()"
+                  (click)="setFilter({ page: d.page + 1 })">Sledeća</button>
+        </div>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <div class="panel empty">Učitavanje…</div>
+  }
+</main>

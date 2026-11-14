@@ -1,0 +1,134 @@
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-input);
+  background: var(--surface);
+  min-width: 280px;
+}
+.search input {
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 14px;
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+}
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+.zone-list {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.z {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.z:last-child {
+  border-bottom: 0;
+}
+.z:hover {
+  background: var(--surface-alt);
+}
+.z.sel {
+  background: var(--navy);
+  color: #ffffff;
+}
+.z-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.z-name {
+  font-weight: 600;
+}
+.z-rate {
+  font-size: 13px;
+}
+.z-area {
+  font-size: 13px;
+  opacity: 0.8;
+}
+.detail {
+  flex: 999 1 600px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.head-card {
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.head-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.zone-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+.head-sub {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.rules {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.rule {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.rule-v {
+  font-size: 20px;
+}
+.tables {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.hd.plain {
+  padding: 11px 16px;
+}
+@media (max-width: 900px) {
+  .rules {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tables {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,149 @@
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.top {
+  background: var(--navy);
+}
+.top-in {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 32px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+}
+.body {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 32px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+}
+.main {
+  flex: 1 1 520px;
+  max-width: 600px;
+  min-width: 0;
+}
+.content {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.state {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.state-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.state-title {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.state-lead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.hint {
+  color: var(--warn);
+}
+.icon {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon.ok {
+  background: var(--ok);
+}
+.icon.bad {
+  background: var(--err);
+}
+.icon.warn {
+  background: var(--warn);
+}
+.kvs {
+  display: flex;
+  flex-direction: column;
+}
+.small {
+  font-size: 13px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+}
+.grow {
+  flex: 1;
+}
+.lg-h {
+  height: 48px;
+  font-size: 15px;
+}
+.flow {
+  flex: 1 1 300px;
+  max-width: 380px;
+  min-width: 0;
+}
+.flow-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.p {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+.p i {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-size: 11px;
+  font-family: var(--mono);
+  background: var(--surface);
+  color: var(--text-3);
+  border: 1px solid var(--line);
+}
+.p i.done {
+  background: var(--ok);
+  color: #ffffff;
+  border-color: var(--ok);
+}
+.p i.cur {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.p i.bad {
+  background: var(--err);
+  color: #ffffff;
+  border-color: var(--err);
+}
+.flow-note {
+  margin: 6px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}

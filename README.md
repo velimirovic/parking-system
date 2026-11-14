@@ -55,6 +55,23 @@ cd psp-service && ./mvnw spring-boot:run   # backend se kači na localhost:5434
 cd psp-frontend && npm start               # http://localhost:4201, /api ide na :8082
 ```
 
+### Parking aplikacija
+
+Korisnik se registruje na http://localhost:4200 (Registracija), dodaje vozilo i pokreće sesiju.
+Zone, cenovnici i lokacije se upisuju Flyway migracijom (`V2__seed_zones.sql`); Zona 3 ima naplatu 0–24h
+svakog dana, pa se tok može testirati i van radnog vremena ostalih zona.
+
+`parking-service` je klijent PSP-a sa demo nalogom `MRC-00042` (vidi ispod). U PSP portalu, za tog klijenta
+(Metode i integracija), povratni URL-ovi treba da budu:
+
+| Parametar | Vrednost |
+|---|---|
+| `SUCCESS_URL` | `http://localhost:4200/placanje/uspeh` |
+| `FAILED_URL` | `http://localhost:4200/placanje/neuspeh` |
+| `ERROR_URL` | `http://localhost:4200/placanje/greska` |
+
+API, pravila zona i tok kreiranja naloga su opisani u [docs/parking-system.md](docs/parking-system.md).
+
 ### PSP portal - prva prijava
 
 Pri prvom pokretanju nad praznom bazom PSP kreira super admina i demo klijente sa transakcijama
