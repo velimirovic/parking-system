@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/zones", "/zones/**").permitAll()
+                        // webhook PSP-a: bez JWT-a, autentifikacija HMAC potpisom (PspWebhookService)
+                        .requestMatchers(HttpMethod.POST, "/psp/webhook").permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())

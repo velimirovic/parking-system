@@ -1,5 +1,6 @@
 package com.sep.parking.session;
 
+import com.sep.parking.transaction.RefundStatus;
 import com.sep.parking.transaction.TransactionPurpose;
 import com.sep.parking.transaction.TransactionStatus;
 import jakarta.validation.constraints.DecimalMin;
@@ -73,10 +74,15 @@ public final class SessionDtos {
 
     // ---------- prikaz ----------
 
+    /**
+     * @param confirmedAt  trenutak odobrenja placanja (od njega tece placeno vreme)
+     * @param refundStatus REQUIRED kada je placanje uspelo a sesija nije aktivirana, REFUNDED posle povracaja
+     */
     public record PaymentSummary(UUID id, String merchantOrderId, TransactionPurpose purpose,
                                  TransactionStatus status, BigDecimal amount, String currency,
                                  int durationMinutes, String paymentMethod, String globalTransactionId,
-                                 Instant paymentExpiresAt, String redirectUrl, Instant createdAt) {
+                                 Instant paymentExpiresAt, String redirectUrl, Instant createdAt,
+                                 Instant confirmedAt, RefundStatus refundStatus, String refundReason) {
     }
 
     public record StatusLogEntry(Instant occurredAt, String fromStatus, String toStatus, String event,
@@ -95,6 +101,7 @@ public final class SessionDtos {
     /** Stranica statusa placanja (SUCCESS_URL / FAILED_URL / ERROR_URL). */
     public record OrderResponse(String merchantOrderId, TransactionPurpose purpose, TransactionStatus paymentStatus,
                                 BigDecimal amount, String currency, String paymentMethod, Instant createdAt,
-                                SessionResponse session) {
+                                Instant confirmedAt, String globalTransactionId, RefundStatus refundStatus,
+                                String refundReason, SessionResponse session) {
     }
 }

@@ -37,12 +37,13 @@ public class SessionService {
     private final SessionCreationService creation;
     private final PaymentInitiationService initiation;
     private final SessionMapper mapper;
+    private final PaymentStatusSync statusSync;
     private final Clock clock;
 
     public SessionService(ParkingZoneRepository zones, VehicleRepository vehicles, ParkingSessionRepository sessions,
                           PaymentTransactionRepository transactions, SessionRules rules,
                           SessionCreationService creation, PaymentInitiationService initiation,
-                          SessionMapper mapper, Clock clock) {
+                          SessionMapper mapper, PaymentStatusSync statusSync, Clock clock) {
         this.zones = zones;
         this.vehicles = vehicles;
         this.sessions = sessions;
@@ -51,6 +52,7 @@ public class SessionService {
         this.creation = creation;
         this.initiation = initiation;
         this.mapper = mapper;
+        this.statusSync = statusSync;
         this.clock = clock;
     }
 
@@ -111,6 +113,26 @@ public class SessionService {
         ParkingSession session = sessions.findForUser(t.getSession().getId(), userId)
                 .orElseThrow(() -> ApiException.notFound("ORDER_NOT_FOUND", "Nalog nije pronađen."));
         return new OrderResponse(t.getMerchantOrderId(), t.getPurpose(), t.getStatus(), t.getAmount(),
-                t.getCurrency(), t.getPaymentMethod(), t.getCreatedAt(), mapper.map(session, true));
+                t.getCurrency(), t.getPaymentMethod(), t.getCreatedAt(), t.getConfirmedAt(),
+                t.getGlobalTransactionId(), t.getRefundStatus(), t.getRefundReason(), mapper.map(session, true));
+    }
+
+    /** Najmanji razmak izmedju dve provere istog naloga na zahtev korisnika. */
+    private static final Duration SYNC_THROTTLE = Duration.ofSeconds(5);
+
+    /**
+     * Provera statusa naloga na PSP-u na zahtev korisnika (stranica statusa placanja) - konacan status se
+     * uskladjuje bez oslanjanja na redirect i bez cekanja periodicne provere. Poziv PSP-u je van DB
+     * transakcije; azurno stanje vraca {@link #order(UUID, String)}.
+     */
+    public void syncOrder(UUID userId, String merchantOrderId) {
+        PaymentTransaction t = transactions.findByMerchantOrderId(merchantOrderId)
+                .filter(x -> x.getUserId().equals(userId))
+                .orElseThrow(() -> ApiException.notFound("ORDER_NOT_FOUND", "Nalog nije pronađen."));
+        Instant now = clock.instant();
+        boolean recentlyChecked = t.getLastCheckedAt() != null && t.getLastCheckedAt().plus(SYNC_THROTTLE).isAfter(now);
+        if (t.getStatus().isOpen() && !recentlyChecked) {
+            statusSync.sync(merchantOrderId, StatusActor.SYSTEM, "provera na zahtev korisnika");
+        }
     }
 }

@@ -55,6 +55,15 @@ app:
     signing-secret: ${PSP_SIGNING_SECRET:whsec_parking_demo_00000000000000000}
     connect-timeout-ms: 3000
     read-timeout-ms: 10000
+    # putanja webhook URL-a podesenog u PSP portalu (ulazi u HMAC potpis webhook-a)
+    webhook-path: ${PSP_WEBHOOK_PATH:/psp/webhook}
+    webhook-tolerance-seconds: 300
+
+  reconciliation:
+    # nalozi bez konacnog statusa se proveravaju na PSP-u (posao na svakih 30 s; nalog stariji od 60 s, najvise jednom u 60 s)
+    interval-millis: 30000
+    min-age-seconds: 60
+    recheck-seconds: 60
 
   sessions:
     # koliko cesto se aktivne sesije kojima je proslo vreme oznacavaju kao istekle

@@ -76,6 +76,16 @@ export class ParkingApi {
     );
   }
 
+  /** Provera konacnog statusa naloga na PSP-u (ne ceka webhook ni periodicnu proveru). */
+  syncOrder(merchantOrderId: string) {
+    return firstValueFrom(
+      this.http.post<OrderResponse>(
+        `${this.api}/sessions/orders/${encodeURIComponent(merchantOrderId)}/sync`,
+        {},
+      ),
+    );
+  }
+
   // ---------- istorija ----------
   history(filter: HistoryFilter) {
     let params = new HttpParams()

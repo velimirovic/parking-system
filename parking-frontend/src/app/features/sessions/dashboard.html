@@ -132,7 +132,10 @@
               <td>{{ PURPOSE_LABEL[p.purpose] }}</td>
               <td>{{ methodLabel(p.paymentMethod) }}</td>
               <td class="mono num">{{ money(p.amount, p.currency) }}</td>
-              <td><span class="b {{ PAYMENT_STATUS[p.status].cls }}"><i></i>{{ PAYMENT_STATUS[p.status].label }}</span></td>
+              <td>
+                @let badge = paymentBadge(p);
+                <span class="b {{ badge.cls }}"><i></i>{{ badge.label }}</span>
+              </td>
             </tr>
           } @empty {
             <tr><td colspan="7" class="empty">Još nema plaćanja.</td></tr>

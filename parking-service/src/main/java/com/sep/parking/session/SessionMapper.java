@@ -62,7 +62,8 @@ public class SessionMapper {
     public static PaymentSummary payment(PaymentTransaction t) {
         return new PaymentSummary(t.getId(), t.getMerchantOrderId(), t.getPurpose(), t.getStatus(), t.getAmount(),
                 t.getCurrency(), t.getDurationMinutes(), t.getPaymentMethod(), t.getGlobalTransactionId(),
-                t.getPaymentExpiresAt(), t.getStatus().isOpen() ? t.getRedirectUrl() : null, t.getCreatedAt());
+                t.getPaymentExpiresAt(), t.getStatus().isOpen() ? t.getRedirectUrl() : null, t.getCreatedAt(),
+                t.getConfirmedAt(), t.getRefundStatus(), t.getRefundReason());
     }
 
     private static StatusLogEntry logEntry(SessionStatusLog l) {

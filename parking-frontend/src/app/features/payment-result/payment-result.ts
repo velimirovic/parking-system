@@ -6,11 +6,13 @@ import { ParkingApi } from '../../core/services/parking-api.service';
 import { Logo } from '../../shared/components/logo';
 import { errorMessage, methodLabel, money, time } from '../../shared/format';
 
-type View = 'pending' | 'success' | 'failed' | 'error';
+type View = 'pending' | 'success' | 'failed' | 'error' | 'refund';
 
 /** Koliko dugo se stranica sama osvezava dok ceka konacan status. */
 const POLL_EVERY_MS = 3000;
 const POLL_FOR_MS = 3 * 60 * 1000;
+/** Na svaku cetvrtu proveru (~12 s) parking sistem pita PSP za status. */
+const SYNC_EVERY_ROUNDS = 4;
 
 /**
  * P08 - stranica na koju PSP vraca kupca (SUCCESS_URL / FAILED_URL / ERROR_URL).
@@ -43,6 +45,7 @@ export class PaymentResult implements OnInit {
     const o = this.order();
     if (!o) return this.loadError() ? 'error' : 'pending';
     const s = o.session.status;
+    if (o.refundStatus) return 'refund';
     if (o.paymentStatus === 'SUCCESS' && s === 'ACTIVE') return 'success';
     if (s === 'EXPIRED' && o.paymentStatus === 'SUCCESS') return 'success';
     if (o.paymentStatus === 'ERROR') return 'error';
@@ -78,19 +81,23 @@ export class PaymentResult implements OnInit {
       this.loadError.set('Nedostaje broj naloga. Status plaćanja možete proveriti na pregledu.');
       return;
     }
-    await this.load(id);
+    await this.load(id, false);
     if (this.view() === 'pending') {
       this.polling.set(true);
+      // webhook PSP-a obicno stigne pre povratka korisnika; ako ne, svaka N-ta provera pita PSP direktno
+      let round = 0;
       this.timer = setInterval(async () => {
-        await this.load(id);
+        round++;
+        await this.load(id, round % SYNC_EVERY_ROUNDS === 1);
         if (this.view() !== 'pending' || Date.now() - this.startedAt > POLL_FOR_MS) this.stopPolling();
       }, POLL_EVERY_MS);
     }
   }
 
-  private async load(id: string) {
+  /** @param askPsp true = parking sistem odmah proverava konacan status na PSP-u */
+  private async load(id: string, askPsp: boolean) {
     try {
-      this.order.set(await this.api.order(id));
+      this.order.set(askPsp ? await this.api.syncOrder(id) : await this.api.order(id));
       this.loadError.set(null);
     } catch (e) {
       if (!this.order()) this.loadError.set(errorMessage(e));

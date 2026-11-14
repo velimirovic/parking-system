@@ -1,6 +1,7 @@
 package com.sep.parking.history;
 
 import com.sep.parking.session.SessionDtos.SessionResponse;
+import com.sep.parking.transaction.RefundStatus;
 import com.sep.parking.transaction.TransactionPurpose;
 import com.sep.parking.transaction.TransactionStatus;
 import java.math.BigDecimal;
@@ -27,6 +28,6 @@ public final class HistoryDtos {
 
     public record PaymentRow(String merchantOrderId, Instant createdAt, String plate, String zoneName,
                              TransactionPurpose purpose, String paymentMethod, BigDecimal amount, String currency,
-                             TransactionStatus status) {
+                             TransactionStatus status, RefundStatus refundStatus) {
     }
 }

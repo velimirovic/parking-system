@@ -13,6 +13,7 @@ import com.sep.parking.session.SessionMapper;
 import com.sep.parking.session.SessionSpecifications;
 import com.sep.parking.session.SessionStatus;
 import com.sep.parking.transaction.PaymentTransactionRepository;
+import com.sep.parking.transaction.RefundStatus;
 import com.sep.parking.transaction.TransactionPurpose;
 import com.sep.parking.transaction.TransactionStatus;
 import java.math.BigDecimal;
@@ -73,11 +74,11 @@ public class HistoryService {
             currency = s.currency();
             if (s.status() == SessionStatus.ACTIVE || s.status() == SessionStatus.EXPIRED) paidSessions++;
             for (PaymentSummary p : s.payments()) {
-                if (p.status() == TransactionStatus.SUCCESS) {
+                if (p.refundStatus() == RefundStatus.REFUNDED || p.status() == TransactionStatus.REFUNDED) {
+                    refunded = refunded.add(p.amount());
+                } else if (p.status() == TransactionStatus.SUCCESS && p.refundStatus() == null) {
                     spent = spent.add(p.amount());
                     if (p.purpose() == TransactionPurpose.EXTENSION) extensions++;
-                } else if (p.status() == TransactionStatus.REFUNDED) {
-                    refunded = refunded.add(p.amount());
                 }
             }
         }
@@ -97,7 +98,7 @@ public class HistoryService {
         return transactions.findRecentByUser(userId, PageRequest.of(0, n)).stream()
                 .map(t -> new PaymentRow(t.getMerchantOrderId(), t.getCreatedAt(), t.getSession().getPlate(),
                         t.getSession().getZone().getName(), t.getPurpose(), t.getPaymentMethod(), t.getAmount(),
-                        t.getCurrency(), t.getStatus()))
+                        t.getCurrency(), t.getStatus(), t.getRefundStatus()))
                 .toList();
     }
 

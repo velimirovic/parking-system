@@ -87,7 +87,8 @@
                               <span class="mono">{{ p.globalTransactionId ?? p.merchantOrderId }}</span>
                             </span>
                             <span class="mono num">{{ money(p.amount, p.currency) }}</span>
-                            <span class="b {{ PAYMENT_STATUS[p.status].cls }} end"><i></i>{{ PAYMENT_STATUS[p.status].label }}</span>
+                            @let badge = paymentBadge(p);
+                            <span class="b {{ badge.cls }} end" [attr.title]="p.refundReason"><i></i>{{ badge.label }}</span>
                           </div>
                         } @empty {
                           <span class="muted">Nema transakcija.</span>

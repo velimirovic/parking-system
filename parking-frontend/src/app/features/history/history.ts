@@ -10,7 +10,7 @@ import {
   methodLabel,
   money,
   monthLabel,
-  PAYMENT_STATUS,
+  paymentBadge,
   PURPOSE_LABEL,
   SESSION_STATUS,
   time,
@@ -26,7 +26,13 @@ const EVENT_LABELS: Record<string, string> = {
   PAYMENT_INIT_REJECTED: 'Plaćanje odbijeno',
   SESSION_ACTIVATED: 'Aktivna',
   SESSION_EXPIRED: 'Istekla',
-  PAYMENT_FAILED: 'Plaćanje nije uspelo',
+  PAYMENT_FAILED: 'Plaćanje odbijeno',
+  PAYMENT_EXPIRED: 'Plaćanje nije završeno na vreme',
+  PAYMENT_ERROR: 'Greška u obradi plaćanja',
+  PAYMENT_AMOUNT_MISMATCH: 'Iznos se ne poklapa sa nalogom',
+  ACTIVATION_CONFLICT: 'Vozilo već ima aktivnu sesiju',
+  REFUND_REQUIRED: 'Čeka refundaciju',
+  EXTENSION_PAYMENT_CONFIRMED: 'Plaćanje produženja potvrđeno',
 };
 
 const ACTOR_LABELS: Record<StatusLogEntry['actor'], string> = {
@@ -82,7 +88,7 @@ export class History implements OnInit {
   protected readonly monthLabel = monthLabel;
   protected readonly methodLabel = methodLabel;
   protected readonly SESSION_STATUS = SESSION_STATUS;
-  protected readonly PAYMENT_STATUS = PAYMENT_STATUS;
+  protected readonly paymentBadge = paymentBadge;
   protected readonly PURPOSE_LABEL = PURPOSE_LABEL;
 
   async ngOnInit() {
@@ -107,7 +113,7 @@ export class History implements OnInit {
   protected periodText(s: ParkingSession): string {
     switch (s.status) {
       case 'CANCELLED':
-        return 'Plaćanje nije uspelo';
+        return s.payments?.some((p) => p.refundStatus) ? 'Sesija nije aktivirana · refundacija' : 'Plaćanje nije uspelo';
       case 'PENDING_PAYMENT':
         return 'Čeka potvrdu plaćanja';
       default:
@@ -124,7 +130,7 @@ export class History implements OnInit {
   }
 
   protected eventColor(e: StatusLogEntry): string {
-    if (e.event === 'PAYMENT_INITIATED') return '#2950A8';
+    if (e.event === 'PAYMENT_INITIATED' || e.event === 'REFUND_REQUIRED') return '#2950A8';
     return STATUS_COLORS[e.toStatus];
   }
 
