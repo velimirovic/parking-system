@@ -45,6 +45,20 @@
               </div>
             </div>
           }
+          @case ('refund') {
+            <div class="state">
+              <div class="icon info">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>
+              </div>
+              <div class="state-text">
+                <h1 class="state-title">Plaćanje je primljeno, ali sesija nije aktivirana</h1>
+                <p class="state-lead">
+                  {{ order()?.refundReason ?? 'Sesiju nije bilo moguće aktivirati.' }}
+                  Iznos se vraća istim načinom plaćanja.
+                </p>
+              </div>
+            </div>
+          }
           @case ('error') {
             <div class="state">
               <div class="icon warn">
@@ -64,9 +78,15 @@
           <div class="kvs">
             <div class="kv"><span>Vozilo</span><span class="mono">{{ o.session.plate }}</span></div>
             <div class="kv"><span>Zona</span><span>{{ o.session.zoneName }}{{ o.session.locationName ? ' · ' + o.session.locationName : '' }}</span></div>
-            <div class="kv"><span>Period</span><span class="mono">{{ time(o.session.startsAt) }} – {{ time(o.session.endsAt) }}</span></div>
+            <div class="kv">
+              <span>{{ o.session.status === 'ACTIVE' || o.session.status === 'EXPIRED' ? 'Period' : 'Planirani period' }}</span>
+              <span class="mono">{{ time(o.session.startsAt) }} – {{ time(o.session.endsAt) }}</span>
+            </div>
             <div class="kv"><span>Iznos</span><span class="mono">{{ money(o.amount, o.currency) }}</span></div>
             <div class="kv"><span>Način plaćanja</span><span>{{ methodLabel(o.paymentMethod) }}</span></div>
+            @if (o.globalTransactionId) {
+              <div class="kv"><span>ID transakcije</span><span class="mono small">{{ o.globalTransactionId }}</span></div>
+            }
             <div class="kv"><span>Broj naloga</span><span class="mono small">{{ o.merchantOrderId }}</span></div>
           </div>
         }
@@ -87,11 +107,11 @@
       <div class="flow-body">
         <div class="p"><i class="done">✓</i>Nalog za plaćanje kreiran</div>
         <div class="p">
-          <i [class.done]="view() === 'success'" [class.cur]="view() === 'pending' || view() === 'error'"
-             [class.bad]="view() === 'failed'">2</i>
+          <i [class.done]="view() === 'success' || view() === 'refund'"
+             [class.cur]="view() === 'pending' || view() === 'error'" [class.bad]="view() === 'failed'">{{ view() === 'success' || view() === 'refund' ? '✓' : '2' }}</i>
           Potvrda transakcije od PSP-a
         </div>
-        <div class="p"><i [class.done]="view() === 'success'">3</i>Aktivacija parking sesije</div>
+        <div class="p"><i [class.done]="view() === 'success'" [class.bad]="view() === 'refund'">{{ view() === 'success' ? '✓' : '3' }}</i>Aktivacija parking sesije</div>
         <p class="note flow-note">
           Status sesije zavisi isključivo od potvrde koju PSP šalje sistemu, a ne od ove stranice.
           @if (polling()) { Stranica se osvežava automatski. }

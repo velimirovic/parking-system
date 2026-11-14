@@ -10,7 +10,7 @@ import {
   longDate,
   methodLabel,
   money,
-  PAYMENT_STATUS,
+  paymentBadge,
   PURPOSE_LABEL,
   shortDateTime,
   time,
@@ -78,7 +78,7 @@ export class Dashboard implements OnInit {
   protected readonly countdown = countdown;
   protected readonly shortDateTime = shortDateTime;
   protected readonly methodLabel = methodLabel;
-  protected readonly PAYMENT_STATUS = PAYMENT_STATUS;
+  protected readonly paymentBadge = paymentBadge;
   protected readonly PURPOSE_LABEL = PURPOSE_LABEL;
 
   constructor() {

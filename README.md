@@ -57,7 +57,7 @@ cd psp-frontend && npm start               # http://localhost:4201, /api ide na 
 
 ### Parking aplikacija
 
-Korisnik se registruje na http://localhost:4200 (Registracija), dodaje vozilo i pokreće sesiju.
+Korisnik se registruje na http://localhost:4200 (Registracija), dodaje vozilo i pokreće sesiju (Nova sesija).
 Zone, cenovnici i lokacije se upisuju Flyway migracijom (`V2__seed_zones.sql`); Zona 3 ima naplatu 0–24h
 svakog dana, pa se tok može testirati i van radnog vremena ostalih zona.
 
@@ -69,6 +69,10 @@ svakog dana, pa se tok može testirati i van radnog vremena ostalih zona.
 | `SUCCESS_URL` | `http://localhost:4200/placanje/uspeh` |
 | `FAILED_URL` | `http://localhost:4200/placanje/neuspeh` |
 | `ERROR_URL` | `http://localhost:4200/placanje/greska` |
+| Webhook URL | `http://parking-service:8081/psp/webhook` |
+
+Sesija se aktivira tek kada PSP potvrdi plaćanje (webhook ili provera statusa), vidi
+[docs/session-activation.md](docs/session-activation.md).
 
 API, pravila zona i tok kreiranja naloga su opisani u [docs/parking-system.md](docs/parking-system.md).
 

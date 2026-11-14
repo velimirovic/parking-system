@@ -127,6 +127,16 @@ export const PAYMENT_STATUS: Record<PaymentStatus, { label: string; cls: string 
   REFUNDED: { label: 'Refundirano', cls: 'bl' },
 };
 
+/** Oznaka transakcije: refundacija ima prednost nad statusom placanja. */
+export function paymentBadge(p: { status: PaymentStatus; refundStatus?: 'REQUIRED' | 'REFUNDED' | null }): {
+  label: string;
+  cls: string;
+} {
+  if (p.refundStatus === 'REQUIRED') return { label: 'Čeka refundaciju', cls: 'bl' };
+  if (p.refundStatus === 'REFUNDED') return { label: 'Refundirano', cls: 'bl' };
+  return PAYMENT_STATUS[p.status];
+}
+
 export const PURPOSE_LABEL: Record<PaymentPurpose, string> = {
   PURCHASE: 'Kupovina',
   EXTENSION: 'Produženje',

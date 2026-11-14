@@ -71,6 +71,8 @@ Greške su RFC 9457 `ProblemDetail` sa poljima `code` i `detail` (i `fields` za 
 | `GET /sessions/current` | aktivne sesije i nalozi koji čekaju plaćanje |
 | `GET /sessions/{id}` | sesija sa transakcijama i tragom statusa |
 | `GET /sessions/orders/{merchantOrderId}` | stanje naloga za stranicu statusa plaćanja |
+| `POST /sessions/orders/{merchantOrderId}/sync` | odmah proverava konačan status naloga na PSP-u i vraća ažurno stanje |
+| `POST /psp/webhook` | potvrda plaćanja od PSP-a (javno, HMAC potpis) |
 | `GET /history?month=2026-11&vehicleId=&status=&page=&size=` | istorija sa zbirnim podacima |
 | `GET /history/payments?limit=5` | poslednja plaćanja |
 
@@ -86,9 +88,7 @@ Greške su RFC 9457 `ProblemDetail` sa poljima `code` i `detail` (i `fields` za 
 | `/vozila` | P06 vozila i vreme obaveštenja |
 | `/placanje/uspeh`, `/placanje/neuspeh`, `/placanje/greska` | P08 povratak sa PSP-a; prikaz zavisi samo od stanja naloga u parking sistemu, a ne od URL-a |
 
-## Sledeći korak — aktiviranje parking sesije
+## Aktiviranje sesije
 
-Model je spreman za: prijem webhook-a PSP-a (provera `X-Psp-Signature` pomoću `PspSigner`, iznosa i valute,
-idempotentna obrada), proveru statusa (`PspClient.getTransaction`) za naloge kojima je istekao rok plaćanja,
-aktivaciju sesije (`PENDING_PAYMENT → ACTIVE`, period od trenutka potvrde) i refundaciju kada je plaćanje uspelo
-a sesija se ne može aktivirati.
+Potvrda plaćanja (webhook PSP-a i provera statusa), pravila aktivacije, refundacija i dijagram sekvence su
+opisani u [session-activation.md](session-activation.md).

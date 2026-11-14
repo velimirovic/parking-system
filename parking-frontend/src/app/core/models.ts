@@ -125,6 +125,7 @@ export interface CreateSessionRequest {
 export type SessionStatus = 'PENDING_PAYMENT' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
 export type PaymentStatus = 'INIT' | 'PENDING' | 'SUCCESS' | 'FAILED' | 'ERROR' | 'EXPIRED' | 'REFUNDED';
 export type PaymentPurpose = 'PURCHASE' | 'EXTENSION';
+export type RefundStatus = 'REQUIRED' | 'REFUNDED';
 
 export interface CreateSessionResponse {
   sessionId: string;
@@ -150,6 +151,9 @@ export interface PaymentSummary {
   paymentExpiresAt: string | null;
   redirectUrl: string | null;
   createdAt: string;
+  confirmedAt: string | null;
+  refundStatus: RefundStatus | null;
+  refundReason: string | null;
 }
 
 export interface StatusLogEntry {
@@ -195,6 +199,10 @@ export interface OrderResponse {
   currency: string;
   paymentMethod: string | null;
   createdAt: string;
+  confirmedAt: string | null;
+  globalTransactionId: string | null;
+  refundStatus: RefundStatus | null;
+  refundReason: string | null;
   session: ParkingSession;
 }
 
@@ -225,6 +233,7 @@ export interface PaymentRow {
   amount: number;
   currency: string;
   status: PaymentStatus;
+  refundStatus: RefundStatus | null;
 }
 
 /** RFC 9457 ProblemDetail sa kodom greske. */

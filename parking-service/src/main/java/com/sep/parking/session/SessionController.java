@@ -53,6 +53,13 @@ public class SessionController {
         return service.get(CurrentUser.id(jwt), id);
     }
 
+    /** Proverava konacan status naloga na PSP-u i vraca azurno stanje. */
+    @PostMapping("/orders/{merchantOrderId}/sync")
+    public OrderResponse syncOrder(@AuthenticationPrincipal Jwt jwt, @PathVariable String merchantOrderId) {
+        service.syncOrder(CurrentUser.id(jwt), merchantOrderId);
+        return service.order(CurrentUser.id(jwt), merchantOrderId);
+    }
+
     @GetMapping("/orders/{merchantOrderId}")
     public OrderResponse order(@AuthenticationPrincipal Jwt jwt, @PathVariable String merchantOrderId) {
         return service.order(CurrentUser.id(jwt), merchantOrderId);

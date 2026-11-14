@@ -85,6 +85,28 @@ public class PaymentTransaction {
     @Column(name = "failure_reason")
     private String failureReason;
 
+    /** Trenutak odobrenja placanja (ACQUIRER_TIMESTAMP) ili prijema potvrde. */
+    @Column(name = "confirmed_at")
+    private Instant confirmedAt;
+
+    /** Poslednja provera statusa na PSP-u (reconciliation). */
+    @Column(name = "last_checked_at")
+    private Instant lastCheckedAt;
+
+    @Column(name = "check_attempts", nullable = false)
+    private int checkAttempts;
+
+    /** Placanje je uspelo, a sesija nije aktivirana - povracaj istim nacinom placanja. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "refund_status")
+    private RefundStatus refundStatus;
+
+    @Column(name = "refund_reason")
+    private String refundReason;
+
+    @Column(name = "refund_requested_at")
+    private Instant refundRequestedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

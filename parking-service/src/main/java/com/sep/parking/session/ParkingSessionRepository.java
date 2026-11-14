@@ -68,6 +68,16 @@ public interface ParkingSessionRepository extends JpaRepository<ParkingSession, 
     @Query("select s from ParkingSession s where s.id = :id and s.user.id = :userId")
     Optional<ParkingSession> findForUser(@Param("id") UUID id, @Param("userId") UUID userId);
 
+    /** Da li vozilo ima drugu aktivnu sesiju koja jos traje (aktivacija ne sme napraviti preklapanje). */
+    @Query("""
+            select count(s) > 0 from ParkingSession s
+            where s.vehicle.id = :vehicleId and s.id <> :excludeId and s.status = :active and s.endsAt > :now
+            """)
+    boolean existsOtherActive(@Param("vehicleId") UUID vehicleId,
+                              @Param("excludeId") UUID excludeId,
+                              @Param("now") Instant now,
+                              @Param("active") SessionStatus active);
+
     @Query("select s.id from ParkingSession s where s.status = :status and s.endsAt <= :now")
     List<UUID> findIdsDue(@Param("status") SessionStatus status, @Param("now") Instant now);
 }
